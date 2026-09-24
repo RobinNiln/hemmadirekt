@@ -1,25 +1,27 @@
 import { contractSections, type ContractData } from '../lib/documents'
 import { BRAND } from '../config/brand'
+import { cn } from './ui'
 
-// Förhandsvisning av överlåtelseavtalet, tydligt märkt som demo.
-export function ContractDocument({ data, signed }: { data: ContractData; signed?: { seller: boolean; buyer: boolean } }) {
+// Förhandsvisning av avtalet, tydligt märkt som demo.
+export function ContractDocument({ data, signed, draft }: { data: ContractData; signed?: { seller: boolean; buyer: boolean }; draft?: boolean }) {
   return (
     <div className="relative overflow-hidden rounded-xl border border-sand-300 bg-white shadow-card">
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden>
         <span className="-rotate-[24deg] select-none whitespace-nowrap text-6xl font-black tracking-widest text-amber-500/10 sm:text-8xl">DEMO</span>
       </div>
-      <div className="border-b border-amber-200 bg-amber-50 px-6 py-2.5 text-center text-xs font-semibold text-amber-900">
-        DEMO – detta är inte ett juridiskt avtal och får inte användas i en verklig affär
-      </div>
+      <div className="border-b border-amber-200 bg-amber-50 px-6 py-2.5 text-center text-xs font-bold text-amber-900">Demo – inte ett juridiskt bindande dokument</div>
       <div className="relative px-6 py-8 sm:px-10">
-        <p className="text-xs uppercase tracking-[0.2em] text-ink-muted">{BRAND.name}</p>
-        <h2 className="mt-1 text-2xl font-bold">Överlåtelseavtal bostadsrätt</h2>
+        <p className="text-xs uppercase tracking-[0.2em] text-ink-muted">
+          {BRAND.name}
+          {draft && ' · Utkast'}
+        </p>
+        <h2 className="mt-1 text-2xl font-bold">{data.title}</h2>
         <div className="mt-6 space-y-5 font-serif text-[15px] leading-relaxed text-ink-soft">
           {contractSections(data).map((s) => (
             <section key={s.title}>
               <h3 className="font-sans text-sm font-bold text-ink">{s.title}</h3>
               {s.body.split('\n').filter(Boolean).map((line, i) => (
-                <p key={i} className="mt-1">
+                <p key={i} className={cn('mt-1', line.startsWith('[Demotext]') || line.startsWith('Lorem') ? 'rounded bg-sand-100 px-2 py-1 font-sans text-xs italic text-ink-muted' : '')}>
                   {line}
                 </p>
               ))}

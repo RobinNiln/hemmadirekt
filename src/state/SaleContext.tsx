@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from 'react'
 import { formatSEK, nowTime, uid } from '../lib/format'
-import { DEMO_BIDS, DEMO_INTERESTED, EMPTY_STATE, demoState } from './presets'
-import type { Bid, Closing, ContractConditions, Package, PropertyDetails, SalePhoto, SaleState, Viewing } from './types'
+import { DEFAULT_PROPERTY, DEMO_BIDS, DEMO_INTERESTED, DEMO_VILLA, EMPTY_CONTRACT, EMPTY_STATE, demoState } from './presets'
+import type { Bid, Closing, Contract, ContractConditions, DocsState, Package, PropertyDetails, PropertyKind, SalePhoto, SaleState, Viewing } from './types'
 
 // ---------------------------------------------------------------------------
 // Här ligger all "affärslogik" för prototypen. Allt sparas i webbläsaren
@@ -9,13 +9,15 @@ import type { Bid, Closing, ContractConditions, Package, PropertyDetails, SalePh
 // En riktig backend skulle ersätta just den här filen.
 // ---------------------------------------------------------------------------
 
-const STORAGE_KEY = 'hemmadirekt-sale-v1'
+// Versionsnumret höjs när datamodellen ändras, så att gammal sparad data inte krockar.
+const STORAGE_KEY = 'hemmadirekt-sale-v2'
 
 type Action =
   | { type: 'LOGIN' }
   | { type: 'LOGOUT' }
   | { type: 'START_SALE'; pkg: Package }
   | { type: 'UPDATE_PROPERTY'; patch: Partial<PropertyDetails> }
+  | { type: 'SET_KIND'; kind: PropertyKind }
   | { type: 'SET_PHOTOS'; photos: SalePhoto[] }
   | { type: 'SET_DESCRIPTION'; text: string }
   | { type: 'SET_VIEWING'; viewing: Viewing | null }
@@ -23,8 +25,9 @@ type Action =
   | { type: 'SIMULATE_MARKET' }
   | { type: 'ADD_BID'; bid: Bid }
   | { type: 'ACCEPT_BID'; bidId: string }
-  | { type: 'CONTRACT_PATCH'; patch: Partial<SaleState['contract']> }
+  | { type: 'CONTRACT_PATCH'; patch: Partial<Contract> }
   | { type: 'SET_CONDITIONS'; conditions: ContractConditions }
+  | { type: 'DOCS_PATCH'; patch: Partial<DocsState> }
   | { type: 'CLOSING_PATCH'; patch: Partial<Closing> }
   | { type: 'NOTIFY'; text: string; link?: string }
   | { type: 'READ_NOTIFICATIONS' }
@@ -34,6 +37,17 @@ type Action =
 
 function notif(text: string, link?: string) {
   return { id: uid('n'), text, time: nowTime(), read: false, link }
+}
+
+// Ett nytt avtal får rätt standardvillkor beroende på bostadstyp.
+function freshContract(kind: PropertyKind, bid: Bid): Contract {
+  return {
+    ...EMPTY_CONTRACT,
+    price: bid.amount,
+    deposit: Math.round(bid.amount * 0.1),
+    accessDate: bid.desiredAccess,
+    conditions: { ...EMPTY_CONTRACT.conditions, brf: kind === 'brf', inspection: kind === 'villa' },
+  }
 }
 
 function reducer(state: SaleState, action: Action): SaleState {
@@ -46,6 +60,19 @@ function reducer(state: SaleState, action: Action): SaleState {
       return { ...EMPTY_STATE, loggedIn: true, started: true, mode: 'sell', pkg: action.pkg }
     case 'UPDATE_PROPERTY':
       return { ...state, property: { ...state.property, ...action.patch } }
+    case 'SET_KIND': {
+      if (state.property.kind === action.kind) return state
+      // I demon byter vi till en exempelbostad av rätt typ men behåller priset så att buden stämmer.
+      const base = action.kind === 'villa' ? DEMO_VILLA : DEFAULT_PROPERTY
+      const signed = state.contract.signedBySeller || state.contract.signedByBuyer
+      return {
+        ...state,
+        property: { ...base, askingPrice: state.property.askingPrice },
+        contract: signed
+          ? state.contract
+          : { ...state.contract, conditions: { ...state.contract.conditions, brf: action.kind === 'brf', inspection: action.kind === 'villa' } },
+      }
+    }
     case 'SET_PHOTOS':
       return { ...state, photos: action.photos }
     case 'SET_DESCRIPTION':
@@ -87,12 +114,7 @@ function reducer(state: SaleState, action: Action): SaleState {
       return {
         ...state,
         acceptedBidId: bid.id,
-        contract: {
-          ...EMPTY_STATE.contract,
-          price: bid.amount,
-          deposit: Math.round(bid.amount * 0.1),
-          accessDate: bid.desiredAccess,
-        },
+        contract: freshContract(state.property.kind, bid),
         notifications: [notif(`Du har accepterat budet från ${bid.bidderName}. Nästa steg: avtalet.`, '/min-forsaljning/avtal'), ...state.notifications],
       }
     }
@@ -100,8 +122,13 @@ function reducer(state: SaleState, action: Action): SaleState {
       return { ...state, contract: { ...state.contract, ...action.patch } }
     case 'SET_CONDITIONS':
       return { ...state, contract: { ...state.contract, conditions: action.conditions } }
-    case 'CLOSING_PATCH':
-      return { ...state, closing: { ...state.closing, ...action.patch } }
+    case 'DOCS_PATCH':
+      return { ...state, docs: { ...state.docs, ...action.patch } }
+    case 'CLOSING_PATCH': {
+      const closing = { ...state.closing, ...action.patch }
+      closing.completed = closing.finalPayment && closing.keysHandedOver && closing.buyerMovedIn
+      return { ...state, closing }
+    }
     case 'NOTIFY':
       return { ...state, notifications: [notif(action.text, action.link), ...state.notifications] }
     case 'READ_NOTIFICATIONS':
@@ -115,16 +142,18 @@ function reducer(state: SaleState, action: Action): SaleState {
         time: nowTime(),
         desiredAccess: action.accessDate,
       }
+      const property = { ...EMPTY_STATE.property, ...action.property, askingPrice: action.price }
       return {
         ...EMPTY_STATE,
         loggedIn: true,
         started: true,
         mode: 'direct',
         pkg: 'direct',
-        property: { ...EMPTY_STATE.property, ...action.property, askingPrice: action.price },
+        property,
         bids: [bid],
         acceptedBidId: bid.id,
-        contract: { ...EMPTY_STATE.contract, price: bid.amount, deposit: Math.round(bid.amount * 0.1), accessDate: bid.desiredAccess },
+        contract: freshContract(property.kind, bid),
+        docs: { ...EMPTY_STATE.docs, associationVerified: true, financingRegistered: true },
         notifications: [notif(`Affären med ${action.buyerName} är skapad. Nu skapar vi avtalet.`, '/min-forsaljning/avtal')],
       }
     }
@@ -169,6 +198,7 @@ interface SaleContextValue {
   // Simuleringar
   simulateBidding: () => void
   biddingRunning: boolean
+  later: (ms: number, fn: () => void) => void
 }
 
 const SaleContext = createContext<SaleContextValue | null>(null)
@@ -186,17 +216,21 @@ export function SaleProvider({ children }: { children: ReactNode }) {
   const acceptedBid = state.bids.find((b) => b.id === state.acceptedBidId) ?? null
   const unreadCount = state.notifications.filter((n) => !n.read).length
 
+  // Kör något efter en fördröjning – används för simulerade händelser.
+  const later = useCallback((ms: number, fn: () => void) => {
+    timers.current.push(window.setTimeout(fn, ms))
+  }, [])
+
   // Lägger in demobuden ett i taget, så att det känns som en riktig budgivning.
   const simulateBidding = useCallback(() => {
     setBiddingRunning(true)
     DEMO_BIDS.forEach((bid, i) => {
-      const t = window.setTimeout(() => {
+      later(900 + i * 1400, () => {
         dispatch({ type: 'ADD_BID', bid: { ...bid, id: uid('b') } })
         if (i === DEMO_BIDS.length - 1) setBiddingRunning(false)
-      }, 900 + i * 1400)
-      timers.current.push(t)
+      })
     })
-  }, [setBiddingRunning])
+  }, [setBiddingRunning, later])
 
   const value: SaleContextValue = {
     state,
@@ -207,6 +241,7 @@ export function SaleProvider({ children }: { children: ReactNode }) {
     unreadCount,
     simulateBidding,
     biddingRunning,
+    later,
   }
   return <SaleContext.Provider value={value}>{children}</SaleContext.Provider>
 }

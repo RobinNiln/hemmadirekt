@@ -45,7 +45,7 @@ export const LISTINGS: Listing[] = [
     price: 4495000,
     fee: 4250,
     built: 1929,
-    association: 'BRF Ringblomman 12',
+    association: 'Bostadsrättsföreningen Solgläntan',
     images: [IMG.livingBright, IMG.kitchen, IMG.livingScandi, IMG.bedroom, IMG.apartment, IMG.bedroom2, IMG.bathroom, IMG.interior],
     description: RINGVAGEN_DESCRIPTION,
     highlights: ['Hiss', 'Balkong mot gård', 'Renoverat kök 2021', 'Stambyte 2018'],

@@ -277,7 +277,10 @@ function DetailsStep({ onNext, onBack }: { onNext: () => void; onBack: () => voi
   const { state, dispatch } = useSale()
   const p = state.property
   const num = (n: number) => (n ? String(n) : '')
+  const [kind, setKind] = useState(p.kind)
+  const brf = kind === 'brf'
   const [v, setV] = useState({
+    designation: p.designation,
     size: num(p.size),
     rooms: num(p.rooms),
     floor: p.floor,
@@ -296,12 +299,14 @@ function DetailsStep({ onNext, onBack }: { onNext: () => void; onBack: () => voi
     dispatch({
       type: 'UPDATE_PROPERTY',
       patch: {
+        kind,
+        designation: v.designation,
         size: parseAmount(v.size),
         rooms: parseAmount(v.rooms),
-        floor: v.floor,
+        floor: brf ? v.floor : '',
         fee: parseAmount(v.fee),
         built: parseAmount(v.built),
-        association: v.association,
+        association: brf ? v.association : '',
         askingPrice: parseAmount(v.askingPrice),
       },
     })
@@ -313,25 +318,53 @@ function DetailsStep({ onNext, onBack }: { onNext: () => void; onBack: () => voi
   return (
     <Card className="p-6 sm:p-8">
       <StepHeading title="Berätta lite mer" text="Det här är uppgifterna köpare letar efter först." />
-      <div className="grid gap-4 sm:grid-cols-2">
+      <Field label="Vilken typ av bostad är det?" hint="Vi anpassar dokumenten efter bostadstypen.">
+        <div className="grid grid-cols-2 gap-2">
+          {(
+            [
+              ['brf', 'Bostadsrätt', 'Lägenhet i en förening'],
+              ['villa', 'Villa / fastighet', 'Hus som du äger'],
+            ] as const
+          ).map(([k, label, sub]) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => setKind(k)}
+              className={cn('rounded-xl border-2 p-4 text-left transition', kind === k ? 'border-petrol-600 bg-petrol-50/60' : 'border-sand-300 bg-white hover:border-ink-faint')}
+            >
+              <span className="block font-semibold">{label}</span>
+              <span className="block text-sm text-ink-muted">{sub}</span>
+            </button>
+          ))}
+        </div>
+      </Field>
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <Field label="Boyta (m²)">
           <Input inputMode="numeric" value={v.size} onChange={set('size')} placeholder="76" />
         </Field>
         <Field label="Antal rum">
           <Input inputMode="numeric" value={v.rooms} onChange={set('rooms')} placeholder="3" />
         </Field>
-        <Field label="Våning" hint="T.ex. 4 av 5">
-          <Input value={v.floor} onChange={set('floor')} placeholder="4 av 5" />
-        </Field>
-        <Field label="Månadsavgift (kr)">
+        {brf ? (
+          <Field label="Våning" hint="T.ex. 4 av 5">
+            <Input value={v.floor} onChange={set('floor')} placeholder="4 av 5" />
+          </Field>
+        ) : (
+          <Field label="Fastighetsbeteckning" hint="Finns på lagfartsbeviset">
+            <Input value={v.designation} onChange={set('designation')} placeholder="Kommun Område 1:23" />
+          </Field>
+        )}
+        <Field label={brf ? 'Månadsavgift (kr)' : 'Driftkostnad (kr/mån)'}>
           <Input inputMode="numeric" value={v.fee} onChange={set('fee', true)} placeholder="4 250" />
         </Field>
         <Field label="Byggår">
           <Input inputMode="numeric" value={v.built} onChange={set('built')} placeholder="1929" />
         </Field>
-        <Field label="Förening">
-          <Input value={v.association} onChange={set('association')} placeholder="BRF Ringblomman 12" />
-        </Field>
+        {brf && (
+          <Field label="Förening">
+            <Input value={v.association} onChange={set('association')} placeholder="Bostadsrättsföreningen Solgläntan" />
+          </Field>
+        )}
       </div>
       <div className="mt-6 rounded-2xl bg-sand-100 p-5">
         <Field label="Önskat pris (kr)" hint="Priset du annonserar med. Det slutliga priset avgörs av budgivningen.">
@@ -340,7 +373,7 @@ function DetailsStep({ onNext, onBack }: { onNext: () => void; onBack: () => voi
         {ppsqm > 0 && <p className="mt-3 text-sm text-ink-muted">Motsvarar {formatSEK(ppsqm)} per m².</p>}
       </div>
       <NavButtons onBack={onBack} onNext={next} disabled={!valid} />
-      {!valid && <p className="mt-3 text-right text-xs text-ink-muted">Fyll i boyta, rum, avgift och pris för att fortsätta.</p>}
+      {!valid && <p className="mt-3 text-right text-xs text-ink-muted">Fyll i boyta, rum, avgift/driftkostnad och pris för att fortsätta.</p>}
     </Card>
   )
 }

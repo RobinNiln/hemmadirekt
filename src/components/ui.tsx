@@ -245,7 +245,7 @@ export function Modal({ open, onClose, title, children, footer, size = 'md' }: {
 
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-50 !m-0 flex items-end justify-center sm:items-center sm:p-6" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-ink/40 backdrop-blur-[2px] animate-fade" onClick={onClose} />
       <div className={cn('relative flex max-h-[92vh] w-full flex-col rounded-t-2xl bg-white shadow-lift animate-rise sm:rounded-2xl', size === 'lg' ? 'sm:max-w-3xl' : 'sm:max-w-lg')}>
         <div className="flex items-start justify-between gap-4 border-b border-sand-200 px-6 py-5">
@@ -257,6 +257,41 @@ export function Modal({ open, onClose, title, children, footer, size = 'md' }: {
         <div className="overflow-y-auto px-6 py-5">{children}</div>
         {footer && <div className="flex flex-col-reverse gap-2 border-t border-sand-200 px-6 py-4 sm:flex-row sm:justify-end">{footer}</div>}
       </div>
+    </div>
+  )
+}
+
+// ---------- Sidopanel (drawer) ----------
+export function Drawer({ open, onClose, title, subtitle, children, footer }: { open: boolean; onClose: () => void; title?: ReactNode; subtitle?: ReactNode; children: ReactNode; footer?: ReactNode }) {
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    document.addEventListener('keydown', onKey)
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prev
+    }
+  }, [open, onClose])
+
+  if (!open) return null
+  return (
+    <div className="fixed inset-0 z-50 !m-0 flex justify-end" role="dialog" aria-modal="true">
+      <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] animate-fade" onClick={onClose} />
+      <aside className="relative flex h-full w-full flex-col bg-sand-50 shadow-lift animate-slide sm:max-w-xl">
+        <div className="flex items-start justify-between gap-4 border-b border-sand-200 bg-white px-6 py-5">
+          <div className="min-w-0">
+            <div className="text-xl font-bold text-ink">{title}</div>
+            {subtitle && <div className="mt-1.5">{subtitle}</div>}
+          </div>
+          <button onClick={onClose} className="-m-1 rounded-lg p-1 text-ink-muted hover:bg-sand-200 hover:text-ink" aria-label="Stäng">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto px-6 py-6">{children}</div>
+        {footer && <div className="flex flex-col-reverse gap-2 border-t border-sand-200 bg-white px-6 py-4 sm:flex-row sm:justify-end">{footer}</div>}
+      </aside>
     </div>
   )
 }

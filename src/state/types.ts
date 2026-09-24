@@ -1,16 +1,23 @@
 // Datamodellen för en försäljning. En riktig backend skulle lagra samma struktur i en databas.
 
+// 'brf' = bostadsrätt, 'villa' = villa eller annan fastighet (äganderätt)
+export type PropertyKind = 'brf' | 'villa'
+
 export interface PropertyDetails {
+  kind: PropertyKind
   street: string
+  postalCode: string
   city: string
   area: string
-  apartmentNo: string
+  apartmentNo: string // bostadsrätt
+  designation: string // fastighetsbeteckning (villa)
   rooms: number
   size: number
   floor: string
-  fee: number
+  fee: number // månadsavgift (brf) eller driftkostnad (villa)
   built: number
-  association: string
+  association: string // bostadsrättsförening (brf)
+  associationOrgNr: string
   askingPrice: number
 }
 
@@ -59,29 +66,67 @@ export interface Bid {
 }
 
 export interface ContractConditions {
-  brf: boolean
+  brf: boolean // medlemskap i föreningen
+  inspection: boolean // besiktningsvillkor (villa)
   financing: boolean
+  sale: boolean // försäljningsvillkor (köparen måste sälja sin bostad först)
   other: boolean
   otherText: string
 }
 
 export interface Contract {
-  step: number // 1–6
+  step: number // 1–8 i det guidade flödet
+  sellerShare: number // säljarens ägarandel i procent
   price: number
   deposit: number
   accessDate: string
   conditions: ContractConditions
-  approved: boolean
+  included: string[] // vad ingår i köpet
+  includedOther: string
+  draftCreated: boolean // "Skapa avtalsutkast" klickat
+  approved: boolean // "Godkänn för signering" klickat
   signedBySeller: boolean
   signedByBuyer: boolean
 }
 
+export interface SettlementItem {
+  id: string
+  type: 'Avdrag' | 'Tillägg' | 'Avgift' | 'Övrigt'
+  label: string
+  amount: number
+}
+
+// Status för de dokument som inte räknas fram automatiskt ur resten av affären.
+export interface DocsState {
+  associationVerified: boolean // Föreningsinformation kontrollerad
+  questionnaireDone: boolean // Säljarens frågelista (villa)
+  inspectionFile: string | null // Besiktningsprotokoll (filnamn)
+  financingRegistered: boolean // köparen har registrerat lånelöfte i efterhand
+  membership: {
+    created: boolean
+    sent: boolean
+    approved: boolean
+    phone: string
+    email: string
+  }
+  deposit: {
+    created: boolean
+    registered: boolean
+    dueDate: string
+  }
+  settlement: {
+    created: boolean
+    items: SettlementItem[]
+  }
+  deedPrepared: boolean // köpebrev (villa)
+  titlePrepared: boolean // lagfartsunderlag (villa)
+}
+
 export interface Closing {
-  depositRegistered: boolean
-  brfApproved: boolean
   prepared: boolean
   finalPayment: boolean
   keysHandedOver: boolean
+  buyerMovedIn: boolean
   completed: boolean
 }
 
@@ -112,6 +157,7 @@ export interface SaleState {
   bids: Bid[]
   acceptedBidId: string | null
   contract: Contract
+  docs: DocsState
   closing: Closing
   notifications: Notification[]
   marketSimulated: boolean

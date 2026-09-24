@@ -4,28 +4,17 @@ import { Badge, Button, Card, Checklist, ProgressBar, Stat } from '../../compone
 import { TrustRow, VerifiedTag } from '../../components/Trust'
 import { DemoPanel } from '../../components/DemoPanel'
 import { useSale } from '../../state/SaleContext'
-import { isSigned, saleProgress } from '../../state/progress'
+import { saleProgress } from '../../state/progress'
 import { formatDateLong, formatSEK } from '../../lib/format'
-import type { SaleState } from '../../state/types'
-import type { Bid } from '../../state/types'
-
-function nextAction(s: SaleState, highest: Bid | null) {
-  if (s.mode === 'sell' && !s.published) return { title: 'Slutför din annons', text: 'Din annons är inte publicerad än. Fortsätt där du slutade.', cta: 'Fortsätt', to: '/salj/start' }
-  if (s.closing.completed) return { title: 'Grattis – affären är klar!', text: 'Nycklarna är överlämnade och alla dokument är sparade i ditt arkiv.', cta: 'Se dokumenten', to: '/min-forsaljning/dokument' }
-  if (isSigned(s)) return { title: 'Förbered tillträdet', text: `Avtalet är signerat. Tillträdet sker ${formatDateLong(s.contract.accessDate).toLowerCase()}.`, cta: 'Till tillträdet', to: '/min-forsaljning/tilltrade' }
-  if (s.acceptedBidId) return { title: 'Skapa och signera avtalet', text: 'Du har valt köpare. Nästa steg är överlåtelseavtalet – vi guidar dig genom det.', cta: 'Till avtalet', to: '/min-forsaljning/avtal' }
-  if (s.bids.length && highest) return { title: `Du har ${s.bids.length} bud`, text: `Högsta budet är ${formatSEK(highest.amount)} från ${highest.bidderName}. När du är nöjd kan du acceptera ett bud.`, cta: 'Till budgivningen', to: '/min-forsaljning/budgivning' }
-  if (s.marketSimulated) return { title: 'Visningen är genomförd', text: 'Du har fått intressenter. Bud brukar komma in inom några dagar efter visningen.', cta: 'Se intressenter', to: '/min-forsaljning/intressenter' }
-  return { title: 'Din annons är ute – nu väntar vi på visningen', text: 'Köpare kan nu hitta bostaden och boka plats på visningen. Du får en notis när något händer.', cta: 'Visa annonsen', to: '/bostad/ringvagen-128' }
-}
+import { nextStep } from '../../lib/docRegistry'
 
 export default function Overview() {
-  const { state, highestBid } = useSale()
+  const { state, highestBid, acceptedBid } = useSale()
   const [params] = useSearchParams()
   const justPublished = params.get('publicerad') === '1'
   const items = saleProgress(state)
   const pct = Math.round((items.filter((i) => i.done).length / items.length) * 100)
-  const next = nextAction(state, highestBid)
+  const next = nextStep(state, acceptedBid, highestBid)
   const direct = state.mode === 'direct'
 
   return (
