@@ -6,7 +6,11 @@ import { Assistant } from './Assistant'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
-  useEffect(() => window.scrollTo(0, 0), [pathname])
+  // Klamrarna är viktiga: nyare Chrome låter scrollTo() returnera ett löfte (Promise),
+  // och React får inte få tillbaka något annat än en funktion från en effekt.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
   return null
 }
 

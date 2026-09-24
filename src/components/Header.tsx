@@ -36,7 +36,9 @@ export function Header() {
   const NAV = BASE_NAV.map((n) => (n.to === '/hitta-bostad' && buyer.profile ? { to: '/mina-matchningar', label: 'Mina matchningar' } : n))
   const hasSale = state.started
 
-  useEffect(() => setOpen(false), [location.pathname])
+  useEffect(() => {
+    setOpen(false)
+  }, [location.pathname])
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     cn('whitespace-nowrap rounded-lg px-2.5 py-2 text-[15px] font-medium transition-colors', isActive ? 'text-petrol-700' : 'text-ink-soft hover:text-ink')

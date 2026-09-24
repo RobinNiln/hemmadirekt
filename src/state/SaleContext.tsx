@@ -218,7 +218,9 @@ export function SaleProvider({ children }: { children: ReactNode }) {
   const timers = useRef<number[]>([])
   const [biddingRunning, setBiddingRunning] = useReducerFlag()
 
-  useEffect(() => saveState(state), [state])
+  useEffect(() => {
+    saveState(state)
+  }, [state])
   useEffect(() => () => timers.current.forEach((t) => clearTimeout(t)), [])
 
   const sortedBids = useMemo(() => [...state.bids].sort((a, b) => a.amount - b.amount), [state.bids])
