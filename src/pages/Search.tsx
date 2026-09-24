@@ -3,6 +3,8 @@ import { MapPin, RotateCcw, SlidersHorizontal } from 'lucide-react'
 import { Button, Card, Container, Field, Input, Select } from '../components/ui'
 import { ListingCard } from '../components/ListingCard'
 import { useListings } from '../state/useListings'
+import { useBuyer } from '../state/BuyerContext'
+import { matchListing } from '../lib/matching'
 import { formatNumber } from '../lib/format'
 
 const PRICE_STEPS = [2000000, 3000000, 4000000, 5000000, 6000000, 8000000, 10000000]
@@ -11,6 +13,7 @@ const EMPTY = { area: '', type: '', minPrice: '', maxPrice: '', rooms: '', minSi
 
 export default function Search() {
   const { listings, ownId } = useListings()
+  const { buyer } = useBuyer()
   const [f, setF] = useState(EMPTY)
   const [sort, setSort] = useState<'new' | 'priceAsc' | 'priceDesc' | 'size'>('new')
   const [showFilters, setShowFilters] = useState(false)
@@ -43,6 +46,16 @@ export default function Search() {
       <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Bostäder till salu</h1>
       <p className="mt-2 text-ink-muted">Alla bostäder säljs direkt av ägaren – utan mäklare.</p>
 
+      <div className="mt-6 flex flex-col gap-4 rounded-2xl bg-petrol-800 p-5 text-white sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="font-bold">{buyer.profile ? 'Din bostadsprofil är aktiv' : 'Berätta vad du söker så hjälper vi dig hitta rätt'}</p>
+          <p className="text-sm text-petrol-100">{buyer.profile ? 'Bostäder som passar dig är markerade med hur väl de matchar.' : 'Skapa en bostadsprofil på några minuter och få bostäder som matchar – med förklaring.'}</p>
+        </div>
+        <Button to={buyer.profile ? '/mina-matchningar' : '/hitta-bostad'} variant="accent" className="shrink-0">
+          {buyer.profile ? 'Mina matchningar' : 'Hitta rätt bostad'}
+        </Button>
+      </div>
+
       <Card className="mt-8 p-4 sm:p-5">
         <div className="flex gap-3">
           <div className="relative flex-1">
@@ -58,9 +71,10 @@ export default function Search() {
           <Field label="Bostadstyp">
             <Select value={f.type} onChange={set('type')}>
               <option value="">Alla typer</option>
-              <option>Lägenhet</option>
-              <option>Radhus</option>
+              <option>Bostadsrätt</option>
               <option>Villa</option>
+              <option>Radhus</option>
+              <option>Fritidshus</option>
             </Select>
           </Field>
           <Field label="Minpris">
@@ -128,7 +142,7 @@ export default function Search() {
       {results.length ? (
         <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {results.map((l) => (
-            <ListingCard key={l.id} listing={l} own={l.id === ownId} />
+            <ListingCard key={l.id} listing={l} own={l.id === ownId} level={buyer.profile ? matchListing(l, buyer.profile).level : undefined} />
           ))}
         </div>
       ) : (

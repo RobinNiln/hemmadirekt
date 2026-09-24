@@ -45,7 +45,7 @@ export default function Sell() {
               <p className="mt-2 text-sm leading-relaxed text-ink-soft">”Ljus och välplanerad trea högt upp i huset med generöst ljusinsläpp…”</p>
             </div>
             <div className="absolute -top-4 right-4 flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold shadow-lift">
-              <Camera className="h-4 w-4 text-petrol-600" /> 8 bilder uppladdade
+              <Camera className="h-4 w-4 text-petrol-600" /> 10 bilder uppladdade
             </div>
           </div>
         </Container>

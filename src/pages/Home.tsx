@@ -88,6 +88,42 @@ export default function Home() {
         <FeatureGrid />
       </Section>
 
+      {/* FÖR KÖPARE */}
+      <Section className="bg-petrol-900 py-16 text-white sm:py-24">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-mint-300">För dig som letar bostad</p>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Berätta vad du söker så hjälper vi dig hitta rätt.</h2>
+            <p className="mt-4 text-lg leading-relaxed text-petrol-100">
+              Beskriv ditt drömboende med egna ord. Vi översätter det till en sökprofil, matchar den mot alla bostäder och förklarar varför en bostad passar – och vad den saknar.
+            </p>
+            <Button to="/hitta-bostad" variant="accent" size="lg" className="mt-8">
+              Hitta rätt bostad <ArrowRight className="h-5 w-5" />
+            </Button>
+          </div>
+          <div className="rounded-3xl bg-white p-6 text-ink shadow-lift" aria-hidden>
+            <div className="flex items-center justify-between">
+              <span className="rounded-full bg-petrol-700 px-3 py-1 text-xs font-bold text-white">Mycket bra match</span>
+              <span className="text-xs text-ink-muted">Exempel</span>
+            </div>
+            <p className="mt-4 text-xl font-bold">Ringvägen 128</p>
+            <p className="text-sm text-ink-muted">Södermalm · 3 rum · 76 m²</p>
+            <p className="mt-3 text-sm font-semibold text-petrol-800">6 av 6 krav uppfyllda</p>
+            <p className="text-sm text-ink-muted">4 av 5 önskemål uppfyllda</p>
+            <ul className="mt-4 space-y-1.5 text-sm">
+              {['Balkong', 'Hiss', 'Inom din budget'].map((t) => (
+                <li key={t} className="flex items-center gap-2">
+                  <span className="text-petrol-600">✓</span> {t}
+                </li>
+              ))}
+              <li className="flex items-center gap-2 text-ink-muted">
+                <span className="text-amber-600">–</span> Ingen parkeringsplats ingår
+              </li>
+            </ul>
+          </div>
+        </div>
+      </Section>
+
       {/* KOSTNAD */}
       <Section className="bg-sand-50 py-16 sm:py-24">
         <CostComparison />

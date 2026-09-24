@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { ExternalLink, FileText, Gavel, Home, KeyRound, LayoutDashboard, PlayCircle, Scale, UserRound, Users } from 'lucide-react'
+import { ExternalLink, FileText, Gavel, Home, KeyRound, LayoutDashboard, PlayCircle, Scale, Sparkles, UserRound, Users } from 'lucide-react'
 import { Button, Card, Container, StatusDot, cn } from '../../components/ui'
 import { Photo } from '../../components/Photo'
 import { useSale } from '../../state/SaleContext'
@@ -20,7 +20,7 @@ export default function DashboardLayout() {
         <p className="mt-3 text-ink-muted">Starta en ny försäljning, eller testa demon av en försäljning som redan är igång.</p>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <Button to="/salj/start" size="lg">
-            Starta din försäljning
+            Lägg upp bostad
           </Button>
           <Button size="lg" variant="secondary" onClick={() => dispatch({ type: 'LOAD_DEMO' })}>
             <PlayCircle className="h-5 w-5" /> Testa en pågående försäljning
@@ -37,6 +37,7 @@ export default function DashboardLayout() {
     ...(direct
       ? []
       : [
+          { to: '/min-forsaljning/kopare', label: 'Matchande köpare', icon: Sparkles },
           { to: '/min-forsaljning/intressenter', label: 'Intressenter', icon: Users },
           { to: '/min-forsaljning/budgivning', label: 'Budgivning', icon: Gavel },
         ]),

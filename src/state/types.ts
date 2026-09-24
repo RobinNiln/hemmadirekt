@@ -3,8 +3,15 @@
 // 'brf' = bostadsrätt, 'villa' = villa eller annan fastighet (äganderätt)
 export type PropertyKind = 'brf' | 'villa'
 
+export type ListingType = 'Bostadsrätt' | 'Villa' | 'Radhus' | 'Fritidshus'
+
 export interface PropertyDetails {
-  kind: PropertyKind
+  kind: PropertyKind // härleds från listingType: bostadsrätt → 'brf', övriga → 'villa'
+  listingType: ListingType
+  bedrooms: number
+  elevator: boolean
+  plotArea: number // tomtarea (villa m.fl.)
+  floors: number // antal våningsplan (villa m.fl.)
   street: string
   postalCode: string
   city: string
@@ -25,6 +32,16 @@ export interface SalePhoto {
   id: string
   url: string
   label: string
+  tag?: 'huvud' | 'vardagsrum' | 'kok' | 'sovrum' | 'badrum' | 'balkong' | 'ovrigt' // används av "Ordna bilder med AI"
+  rotation?: number // 0, 90, 180, 270
+}
+
+// Det säljaren bygger upp i "Lägg upp bostad".
+export interface ListingDraft {
+  features: string[]
+  headline: string
+  priceType: 'Utgångspris' | 'Fast pris'
+  answers: { favorite: string; areaLove: string; highlight: string }
 }
 
 export interface Viewing {
@@ -42,6 +59,8 @@ export interface Stats {
   saved: number
   viewingSignups: number
   interested: number
+  interestRequests: number // intresseanmälningar där köparen delat sin profil
+  privateViewings: number
 }
 
 export type InterestLevel = 'Mycket intresserad' | 'Intresserad' | 'Vill se igen'
@@ -149,6 +168,7 @@ export interface SaleState {
   pkg: Package
   property: PropertyDetails
   photos: SalePhoto[]
+  listing: ListingDraft
   description: string
   viewing: Viewing | null
   published: boolean

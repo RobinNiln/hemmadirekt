@@ -1,22 +1,26 @@
 import { Link } from 'react-router-dom'
 import { Calendar, Heart } from 'lucide-react'
-import { useState } from 'react'
+import { useBuyer } from '../state/BuyerContext'
 import type { Listing } from '../data/listings'
 import { formatDateLong, formatSEK } from '../lib/format'
 import { Photo } from './Photo'
 import { Badge, cn } from './ui'
+import { MatchBadge } from './Match'
+import type { MatchLevel } from '../lib/matching'
 
-export function ListingCard({ listing, own }: { listing: Listing; own?: boolean }) {
-  const [saved, setSaved] = useState(false)
+export function ListingCard({ listing, own, level }: { listing: Listing; own?: boolean; level?: MatchLevel }) {
+  const { buyer, toggleSave } = useBuyer()
+  const saved = buyer.saved.includes(listing.id)
   const feeLabel = listing.tenure === 'Bostadsrätt' ? 'Avgift' : 'Drift'
   return (
     <article className="group relative overflow-hidden rounded-2xl border border-sand-300/70 bg-white shadow-card transition hover:-translate-y-0.5 hover:shadow-lift">
       <Link to={`/bostad/${listing.id}`} className="block">
         <div className="relative aspect-[4/3] overflow-hidden">
-          <Photo src={listing.images[0]} alt={`${listing.street}, ${listing.area}`} className="h-full w-full transition duration-500 group-hover:scale-[1.03]" />
+          <Photo src={listing.images[0]} rotation={listing.imageRotations?.[0]} alt={`${listing.street}, ${listing.area}`} className="h-full w-full transition duration-500 group-hover:scale-[1.03]" />
           <div className="absolute left-3 top-3 flex gap-1.5">
             {own && <Badge tone="petrol">Din annons</Badge>}
-            {listing.isNew && !own && <Badge tone="green">Ny</Badge>}
+            {level && level !== 'Ingen match' && <MatchBadge level={level} />}
+            {listing.isNew && !own && !level && <Badge tone="green">Ny</Badge>}
           </div>
         </div>
         <div className="p-5">
@@ -39,7 +43,7 @@ export function ListingCard({ listing, own }: { listing: Listing; own?: boolean 
         </div>
       </Link>
       <button
-        onClick={() => setSaved(!saved)}
+        onClick={() => toggleSave(listing.id)}
         className={cn('absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-card backdrop-blur transition hover:bg-white', saved ? 'text-rose-600' : 'text-ink-soft')}
         aria-label={saved ? 'Ta bort från sparade' : 'Spara bostaden'}
       >

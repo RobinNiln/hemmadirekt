@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from 'react'
 import { formatSEK, nowTime, uid } from '../lib/format'
 import { DEFAULT_PROPERTY, DEMO_BIDS, DEMO_INTERESTED, DEMO_VILLA, EMPTY_CONTRACT, EMPTY_STATE, demoState } from './presets'
-import type { Bid, Closing, Contract, ContractConditions, DocsState, Package, PropertyDetails, PropertyKind, SalePhoto, SaleState, Viewing } from './types'
+import type { Bid, Closing, Contract, ContractConditions, DocsState, ListingDraft, Package, PropertyDetails, PropertyKind, SalePhoto, SaleState, Viewing } from './types'
 
 // ---------------------------------------------------------------------------
 // Här ligger all "affärslogik" för prototypen. Allt sparas i webbläsaren
@@ -10,7 +10,7 @@ import type { Bid, Closing, Contract, ContractConditions, DocsState, Package, Pr
 // ---------------------------------------------------------------------------
 
 // Versionsnumret höjs när datamodellen ändras, så att gammal sparad data inte krockar.
-const STORAGE_KEY = 'hemmadirekt-sale-v2'
+const STORAGE_KEY = 'hemmadirekt-sale-v3'
 
 type Action =
   | { type: 'LOGIN' }
@@ -19,9 +19,10 @@ type Action =
   | { type: 'UPDATE_PROPERTY'; patch: Partial<PropertyDetails> }
   | { type: 'SET_KIND'; kind: PropertyKind }
   | { type: 'SET_PHOTOS'; photos: SalePhoto[] }
+  | { type: 'LISTING_PATCH'; patch: Partial<ListingDraft> }
   | { type: 'SET_DESCRIPTION'; text: string }
   | { type: 'SET_VIEWING'; viewing: Viewing | null }
-  | { type: 'PUBLISH' }
+  | { type: 'PUBLISH'; notified?: number }
   | { type: 'SIMULATE_MARKET' }
   | { type: 'ADD_BID'; bid: Bid }
   | { type: 'ACCEPT_BID'; bidId: string }
@@ -58,8 +59,13 @@ function reducer(state: SaleState, action: Action): SaleState {
       return { ...state, loggedIn: false }
     case 'START_SALE':
       return { ...EMPTY_STATE, loggedIn: true, started: true, mode: 'sell', pkg: action.pkg }
-    case 'UPDATE_PROPERTY':
-      return { ...state, property: { ...state.property, ...action.patch } }
+    case 'UPDATE_PROPERTY': {
+      const property = { ...state.property, ...action.patch }
+      property.kind = property.listingType === 'Bostadsrätt' ? 'brf' : 'villa'
+      return { ...state, property }
+    }
+    case 'LISTING_PATCH':
+      return { ...state, listing: { ...state.listing, ...action.patch } }
     case 'SET_KIND': {
       if (state.property.kind === action.kind) return state
       // I demon byter vi till en exempelbostad av rätt typ men behåller priset så att buden stämmer.
@@ -84,13 +90,17 @@ function reducer(state: SaleState, action: Action): SaleState {
         ...state,
         published: true,
         viewing: state.viewing ? { ...state.viewing, published: true } : null,
-        notifications: [notif('Din annons är publicerad. Nu kan köpare hitta bostaden.', '/min-forsaljning'), ...state.notifications],
+        notifications: [
+          ...(action.notified ? [notif(`${action.notified} matchande köpare har fått en notis om din bostad.`, '/min-forsaljning/kopare')] : []),
+          notif('Din annons är publicerad. Nu kan köpare hitta bostaden.', '/min-forsaljning'),
+          ...state.notifications,
+        ],
       }
     case 'SIMULATE_MARKET':
       return {
         ...state,
         marketSimulated: true,
-        stats: { views: 324, saved: 27, viewingSignups: 18, interested: 4 },
+        stats: { views: 423, saved: 31, viewingSignups: 18, interested: 4, interestRequests: 8, privateViewings: 3 },
         viewing: state.viewing ? { ...state.viewing, signups: 18 } : state.viewing,
         interested: DEMO_INTERESTED,
         notifications: [

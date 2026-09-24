@@ -18,6 +18,9 @@ import Bidding from './pages/dashboard/Bidding'
 import ContractFlow from './pages/dashboard/ContractFlow'
 import Documents from './pages/dashboard/Documents'
 import Closing from './pages/dashboard/Closing'
+import MatchingBuyers from './pages/dashboard/MatchingBuyers'
+import BuyerOnboarding from './pages/buyer/BuyerOnboarding'
+import BuyerDashboard from './pages/buyer/BuyerDashboard'
 
 export default function App() {
   return (
@@ -33,8 +36,11 @@ export default function App() {
         <Route path="salj/start" element={<SellFlow />} />
         <Route path="genomfor-affaren" element={<DirectDeal />} />
         <Route path="kopare" element={<BuyerView />} />
+        <Route path="hitta-bostad" element={<BuyerOnboarding />} />
+        <Route path="mina-matchningar" element={<BuyerDashboard />} />
         <Route path="min-forsaljning" element={<DashboardLayout />}>
           <Route index element={<Overview />} />
+          <Route path="kopare" element={<MatchingBuyers />} />
           <Route path="intressenter" element={<Interested />} />
           <Route path="budgivning" element={<Bidding />} />
           <Route path="avtal" element={<ContractFlow />} />

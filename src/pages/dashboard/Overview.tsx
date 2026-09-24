@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom'
-import { ArrowRight, Bookmark, CalendarDays, Eye, Gavel, PartyPopper, Sparkles, Users } from 'lucide-react'
+import { ArrowRight, Bell, Bookmark, CalendarDays, Eye, Gavel, Hand, PartyPopper, Sparkles, Users } from 'lucide-react'
 import { Badge, Button, Card, Checklist, ProgressBar, Stat } from '../../components/ui'
 import { TrustRow, VerifiedTag } from '../../components/Trust'
 import { DemoPanel } from '../../components/DemoPanel'
@@ -7,6 +7,7 @@ import { useSale } from '../../state/SaleContext'
 import { saleProgress } from '../../state/progress'
 import { formatDateLong, formatSEK } from '../../lib/format'
 import { nextStep } from '../../lib/docRegistry'
+import { BuyerCard, useSellerMatches } from './MatchingBuyers'
 
 export default function Overview() {
   const { state, highestBid, acceptedBid } = useSale()
@@ -15,6 +16,7 @@ export default function Overview() {
   const items = saleProgress(state)
   const pct = Math.round((items.filter((i) => i.done).length / items.length) * 100)
   const next = nextStep(state, acceptedBid, highestBid)
+  const { bank, shared } = useSellerMatches()
   const direct = state.mode === 'direct'
 
   return (
@@ -60,12 +62,35 @@ export default function Overview() {
 
       {!direct && (
         <>
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
             <Stat value={state.stats.views} label="Annonsvisningar" icon={<Eye className="h-4 w-4" />} />
-            <Stat value={state.stats.saved} label="Sparat bostaden" icon={<Bookmark className="h-4 w-4" />} />
-            <Stat value={state.viewing?.signups ?? 0} label="Anmälda till visning" icon={<CalendarDays className="h-4 w-4" />} />
-            <Stat value={state.interested.length} label="Intressenter" icon={<Users className="h-4 w-4" />} />
+            <Stat value={state.stats.saved} label="Sparningar" icon={<Bookmark className="h-4 w-4" />} />
+            <Stat value={state.published ? bank.total : 0} label="Matchande köpare" icon={<Users className="h-4 w-4" />} />
+            <Stat value={state.published ? bank.notified : 0} label="Notifierade köpare" icon={<Bell className="h-4 w-4" />} />
+            <Stat value={shared.length} label="Intresseanmälningar" icon={<Hand className="h-4 w-4" />} />
+            <Stat value={state.stats.privateViewings} label="Bokade visningar" icon={<CalendarDays className="h-4 w-4" />} />
           </div>
+
+          {state.published && (
+            <Card className="p-6">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-bold">Matchande köpare</h2>
+                  <p className="text-sm text-ink-muted">
+                    {bank.total} personer söker en bostad som din · {bank.veryGood} mycket bra matchningar
+                  </p>
+                </div>
+                <Button to="/min-forsaljning/kopare" variant="secondary" size="sm">
+                  Visa alla <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                {bank.list.slice(0, 3).map((m) => (
+                  <BuyerCard key={m.buyer.id} m={m} />
+                ))}
+              </div>
+            </Card>
+          )}
 
           <div className="grid gap-6 lg:grid-cols-3">
             {/* VISNING */}

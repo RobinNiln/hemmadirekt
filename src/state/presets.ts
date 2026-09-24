@@ -1,6 +1,6 @@
-import { EXAMPLE_UPLOADS } from '../lib/images'
+import { EXAMPLE_UPLOADS_SORTED } from '../lib/images'
 import { RINGVAGEN_DESCRIPTION } from '../data/listings'
-import type { Bid, Contract, DocsState, Interessent, PropertyDetails, SaleState } from './types'
+import type { Bid, Contract, DocsState, Interessent, ListingDraft, PropertyDetails, SaleState } from './types'
 
 // Startvärden och demodata. Allt här är påhittat exempeldata.
 
@@ -8,6 +8,11 @@ export const DEMO_BRF_NAME = 'Bostadsrättsföreningen Solgläntan'
 
 export const DEFAULT_PROPERTY: PropertyDetails = {
   kind: 'brf',
+  listingType: 'Bostadsrätt',
+  bedrooms: 2,
+  elevator: true,
+  plotArea: 0,
+  floors: 0,
   street: 'Ringvägen 128',
   postalCode: '118 61',
   city: 'Stockholm',
@@ -27,6 +32,11 @@ export const DEFAULT_PROPERTY: PropertyDetails = {
 // Används när man i demon byter bostadstyp till villa/fastighet.
 export const DEMO_VILLA: PropertyDetails = {
   kind: 'villa',
+  listingType: 'Villa',
+  bedrooms: 4,
+  elevator: false,
+  plotArea: 845,
+  floors: 2,
   street: 'Björkvägen 14',
   postalCode: '137 38',
   city: 'Västerhaninge',
@@ -101,6 +111,20 @@ export const EMPTY_DOCS: DocsState = {
   titlePrepared: false,
 }
 
+export const EMPTY_LISTING: ListingDraft = {
+  features: [],
+  headline: '',
+  priceType: 'Utgångspris',
+  answers: { favorite: '', areaLove: '', highlight: '' },
+}
+
+export const DEMO_LISTING: ListingDraft = {
+  features: ['balkong', 'hiss', 'oppen-planlosning', 'diskmaskin', 'tvattmaskin', 'dusch', 'renoverat-kok', 'ljusinslapp', 'forrad', 'parkett'],
+  headline: 'Ljus trea med balkong och social planlösning',
+  priceType: 'Utgångspris',
+  answers: { favorite: 'ljuset och kvällssolen på balkongen', areaLove: 'närheten till Tantolunden och alla caféer', highlight: '' },
+}
+
 export const EMPTY_STATE: SaleState = {
   loggedIn: false,
   sellerName: 'Erik Svensson',
@@ -109,10 +133,11 @@ export const EMPTY_STATE: SaleState = {
   pkg: 'standard',
   property: DEFAULT_PROPERTY,
   photos: [],
+  listing: EMPTY_LISTING,
   description: '',
   viewing: null,
   published: false,
-  stats: { views: 0, saved: 0, viewingSignups: 0, interested: 0 },
+  stats: { views: 0, saved: 0, viewingSignups: 0, interested: 0, interestRequests: 0, privateViewings: 0 },
   interested: [],
   bids: [],
   acceptedBidId: null,
@@ -138,7 +163,8 @@ export function demoState(): SaleState {
     mode: 'sell',
     pkg: 'standard',
     property: DEFAULT_PROPERTY,
-    photos: EXAMPLE_UPLOADS,
+    photos: EXAMPLE_UPLOADS_SORTED,
+    listing: DEMO_LISTING,
     description: RINGVAGEN_DESCRIPTION,
     viewing: {
       date: '2026-10-04',
@@ -150,7 +176,7 @@ export function demoState(): SaleState {
       capacity: 30,
     },
     published: true,
-    stats: { views: 324, saved: 27, viewingSignups: 18, interested: 4 },
+    stats: { views: 423, saved: 31, viewingSignups: 18, interested: 4, interestRequests: 8, privateViewings: 3 },
     interested: DEMO_INTERESTED,
     bids: DEMO_BIDS,
     marketSimulated: true,

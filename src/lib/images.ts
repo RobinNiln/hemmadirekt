@@ -31,14 +31,20 @@ export const IMG = {
   houseExterior: u('photo-1600047509807-ba8f99d2cdde'),
 }
 
-// Åtta exempelbilder som "laddas upp" i säljarflödet.
-export const EXAMPLE_UPLOADS = [
-  { id: 'p1', url: IMG.livingBright, label: 'Vardagsrum' },
-  { id: 'p2', url: IMG.kitchen, label: 'Kök' },
-  { id: 'p3', url: IMG.livingScandi, label: 'Vardagsrum, detalj' },
-  { id: 'p4', url: IMG.bedroom, label: 'Sovrum' },
-  { id: 'p5', url: IMG.apartment, label: 'Matplats' },
-  { id: 'p6', url: IMG.bedroom2, label: 'Sovrum 2' },
-  { id: 'p7', url: IMG.bathroom, label: 'Badrum' },
-  { id: 'p8', url: IMG.interior, label: 'Hall' },
+// Tio exempelbilder som "laddas upp" när säljaren lägger upp bostaden.
+// De kommer i blandad ordning – "Ordna bilder med AI" sorterar dem efter tag.
+export const EXAMPLE_UPLOADS: { id: string; url: string; label: string; tag: 'huvud' | 'vardagsrum' | 'kok' | 'sovrum' | 'badrum' | 'balkong' | 'ovrigt' }[] = [
+  { id: 'p1', url: IMG.kitchen, label: 'Kök', tag: 'kok' },
+  { id: 'p2', url: IMG.bedroom, label: 'Sovrum', tag: 'sovrum' },
+  { id: 'p3', url: IMG.livingBright, label: 'Vardagsrum', tag: 'huvud' },
+  { id: 'p4', url: IMG.bathroom, label: 'Badrum', tag: 'badrum' },
+  { id: 'p5', url: IMG.livingScandi, label: 'Vardagsrum, detalj', tag: 'vardagsrum' },
+  { id: 'p6', url: IMG.interior, label: 'Hall', tag: 'ovrigt' },
+  { id: 'p7', url: IMG.apartment, label: 'Matplats', tag: 'kok' },
+  { id: 'p8', url: IMG.bedroom2, label: 'Sovrum 2', tag: 'sovrum' },
+  { id: 'p9', url: IMG.livingModern, label: 'Vardagsrum mot balkong', tag: 'balkong' },
+  { id: 'p10', url: IMG.kitchen2, label: 'Köksdetalj', tag: 'kok' },
 ]
+
+const ORDER = ['huvud', 'vardagsrum', 'kok', 'sovrum', 'badrum', 'balkong', 'ovrigt']
+export const EXAMPLE_UPLOADS_SORTED = [...EXAMPLE_UPLOADS].sort((a, b) => ORDER.indexOf(a.tag) - ORDER.indexOf(b.tag))
