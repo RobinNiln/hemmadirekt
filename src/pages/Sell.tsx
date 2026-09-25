@@ -20,7 +20,7 @@ export default function Sell() {
               {BRAND.name} guidar dig genom varje steg – du behöver inte veta hur en bostadsaffär fungerar. Vi säger alltid vad som är klart, vad du ska göra nu och vad som händer sedan.
             </p>
             <ul className="mt-6 space-y-2">
-              {['Fast pris från ' + formatSEK(PRICES.sellYourself) + ' – oavsett slutpris', 'Klar annons på under en timme', 'Budgivning, avtal och tillträde på ett ställe'].map((t) => (
+              {['Fast pris från ' + formatSEK(PRICES.sellYourself) + ' – oavsett slutpris', 'Klar annons på under en timme', 'Fast pris, avtal och tillträde på ett ställe'].map((t) => (
                 <li key={t} className="flex items-center gap-2.5 text-[15px]">
                   <CheckCircle2 className="h-5 w-5 text-petrol-600" /> {t}
                 </li>

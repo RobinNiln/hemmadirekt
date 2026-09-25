@@ -1,4 +1,4 @@
-import { BadgeCheck, CalendarCheck, FileSignature, FolderLock, Gavel, LayoutTemplate, ListChecks, MessagesSquare, Sparkles, Users, ArrowRight, Handshake } from 'lucide-react'
+import { BadgeCheck, CalendarCheck, FileSignature, FolderLock, LayoutTemplate, ListChecks, MessagesSquare, Sparkles, Users, ArrowRight, Handshake } from 'lucide-react'
 import { BRAND, PRICES } from '../config/brand'
 import { formatSEK } from '../lib/format'
 import { Button, Card, Container, Eyebrow } from './ui'
@@ -6,7 +6,7 @@ import { Button, Card, Container, Eyebrow } from './ui'
 export const FOUR_STEPS = [
   { n: '01', title: 'Skapa din bostad', text: 'Lägg in uppgifter, bilder och fakta. Vi hjälper dig skapa en komplett annons.' },
   { n: '02', title: 'Hitta köpare', text: 'Publicera bostaden, boka visningar och samla intressenter.' },
-  { n: '03', title: 'Ta emot bud', text: 'Verifierade köpare kan lägga bud direkt via plattformen.' },
+  { n: '03', title: 'Ta emot köpförfrågningar', text: 'Köpare accepterar ditt fasta pris – eller lämnar ett erbjudande – direkt via plattformen.' },
   { n: '04', title: 'Genomför affären', text: 'Vi guidar dig genom avtal, dokument och tillträde.' },
 ]
 
@@ -29,8 +29,8 @@ const FEATURES = [
   { icon: Sparkles, title: 'AI-hjälp för bostadsbeskrivning', text: 'Få ett genomarbetat textförslag som du kan redigera fritt.' },
   { icon: CalendarCheck, title: 'Visningsbokning', text: 'Köpare bokar tid själva. Du ser alla anmälda på ett ställe.' },
   { icon: Users, title: 'Digital intressentlista', text: 'Se vilka som är intresserade, verifierade och har lånelöfte.' },
-  { icon: Gavel, title: 'Budgivning', text: 'Bud läggs digitalt och syns direkt med tid och budgivare.' },
-  { icon: BadgeCheck, title: 'Köparverifiering', text: 'Budgivare legitimerar sig innan de kan lägga bud.' },
+  { icon: ListChecks, title: 'Köpförfrågningar', text: 'Köpare accepterar ditt pris digitalt. Du jämför och väljer själv.' },
+  { icon: BadgeCheck, title: 'Köparverifiering', text: 'Köpare legitimerar sig innan de skickar en köpförfrågan.' },
   { icon: FolderLock, title: 'Dokumenthantering', text: 'Alla dokument för affären samlade och sparade.' },
   { icon: FileSignature, title: 'Avtalsgenerator', text: 'Vi skapar överlåtelseavtalet steg för steg utifrån affären.' },
   { icon: ListChecks, title: 'Checklista inför tillträde', text: 'Du vet alltid vad som är klart och vad som återstår.' },

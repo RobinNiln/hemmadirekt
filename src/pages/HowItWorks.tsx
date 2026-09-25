@@ -1,4 +1,4 @@
-import { ArrowRight, CalendarCheck, FileSignature, Gavel, Home, KeyRound, Megaphone, PartyPopper, UserCheck, Wallet } from 'lucide-react'
+import { ArrowRight, CalendarCheck, FileSignature, Tag, Home, KeyRound, Megaphone, PartyPopper, UserCheck, Wallet } from 'lucide-react'
 import { Button, Card, Container, Eyebrow } from '../components/ui'
 import { DemoNotice } from '../components/Trust'
 import { BRAND } from '../config/brand'
@@ -7,8 +7,8 @@ const STEPS = [
   { icon: Home, title: 'Skapa bostaden', text: 'Ange adressen så hämtar vi grunduppgifterna. Du kompletterar med avgift, byggår och önskat pris.', you: 'Fyll i uppgifter', us: 'Hämtar fakta och kontrollerar' },
   { icon: Megaphone, title: 'Publicera', text: 'Ladda upp bilder och få hjälp av AI att skriva beskrivningen. När du är nöjd publicerar du annonsen.', you: 'Bilder och text', us: 'AI-text och snygg annons' },
   { icon: CalendarCheck, title: 'Håll visning', text: 'Välj tid för visning. Köpare bokar plats själva och du ser vilka som kommer.', you: 'Visar bostaden', us: 'Bokning och påminnelser' },
-  { icon: Gavel, title: 'Ta emot bud', text: 'Verifierade köpare lägger bud direkt i tjänsten. Alla bud syns med tid och budgivare.', you: 'Följer budgivningen', us: 'Verifierar budgivare' },
-  { icon: UserCheck, title: 'Välj köpare', text: 'Du väljer vilket bud du vill gå vidare med. Det behöver inte vara det högsta.', you: 'Accepterar bud', us: 'Visar lånelöfte och tillträdesönskemål' },
+  { icon: Tag, title: 'Ta emot köpförfrågningar', text: 'Du sätter ett fast pris. Verifierade köpare meddelar att de vill köpa till det priset – eller lämnar ett eget erbjudande. Allt med tidsstämpel.', you: 'Jämför förfrågningarna', us: 'Verifierar köparna' },
+  { icon: UserCheck, title: 'Välj köpare', text: 'Du väljer själv vem du går vidare med. Det behöver inte vara den som hörde av sig först.', you: 'Går vidare med en köpare', us: 'Visar finansiering, tillträde och villkor' },
   { icon: FileSignature, title: 'Skapa avtal', text: 'Vi bygger överlåtelseavtalet steg för steg: köpare, pris, tillträde och villkor. Sedan signerar ni digitalt.', you: 'Granskar och signerar', us: 'Genererar avtalet' },
   { icon: Wallet, title: 'Hantera handpenning', text: 'Köparen betalar handpenningen, normalt 10 % av priset, och vi registrerar den i affären.', you: 'Bekräftar mottagen', us: 'Underlag och kvitto' },
   { icon: KeyRound, title: 'Förbered tillträde', text: 'En checklista visar vad som ska göras innan nycklarna lämnas över – från BRF-godkännande till mätarställning.', you: 'Förbereder bostaden', us: 'Checklista och dokument' },

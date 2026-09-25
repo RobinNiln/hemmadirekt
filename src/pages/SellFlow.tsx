@@ -821,41 +821,59 @@ function PriceStep({ onNext, onBack }: { onNext: () => void; onBack: () => void 
   const n = parseAmount(price)
   const perSqm = state.property.size ? Math.round(n / state.property.size) : 0
   const pt = state.listing.priceType
+  const fixed = pt === 'Fast pris'
   return (
-    <Q title="Vad vill du sälja bostaden för?">
-      <Field label={pt === 'Fast pris' ? 'Pris (kr)' : 'Utgångspris (kr)'}>
-        <Input inputMode="numeric" value={price} onChange={(e) => setPrice(moneyInput(e.target.value))} className="h-16 text-2xl font-bold" />
-      </Field>
-      {perSqm > 0 && <p className="mt-2 text-ink-muted">{formatSEK(perSqm)}/m²</p>}
-      <div className="mt-6 grid gap-3 sm:grid-cols-2">
-        {(
-          [
-            ['Utgångspris', 'Priset är en startpunkt. Köpare lägger bud och slutpriset avgörs i budgivningen.'],
-            ['Fast pris', 'Bostaden säljs till angivet pris. Ingen budgivning.'],
-          ] as const
-        ).map(([k, text]) => (
-          <button key={k} onClick={() => dispatch({ type: 'LISTING_PATCH', patch: { priceType: k } })} className={cn('rounded-2xl border-2 p-4 text-left transition', pt === k ? 'border-petrol-600 bg-petrol-50/60' : 'border-sand-300 bg-white hover:border-ink-faint')}>
-            <p className="flex items-center gap-2 font-semibold">
-              <span className={cn('flex h-5 w-5 items-center justify-center rounded-full border-2', pt === k ? 'border-petrol-700 bg-petrol-700' : 'border-sand-300')}>{pt === k && <span className="h-2 w-2 rounded-full bg-white" />}</span>
-              {k}
-            </p>
-            <p className="mt-1 text-sm text-ink-muted">{text}</p>
-          </button>
-        ))}
-      </div>
-      <p className="mt-4 flex items-start gap-2 text-sm text-ink-muted">
-        <Info className="mt-0.5 h-4 w-4 shrink-0" /> Vi gör ingen automatisk värdering. Jämför gärna med sålda bostäder i området.
-      </p>
-      <Nav
-        onBack={onBack}
-        disabled={!n}
-        hint="Ange ett pris."
-        onNext={() => {
-          dispatch({ type: 'UPDATE_PROPERTY', patch: { askingPrice: n } })
-          onNext()
-        }}
-      />
-    </Q>
+    <div className="space-y-6">
+      <Q title="Hur vill du sälja bostaden?">
+        <div className="grid gap-3 sm:grid-cols-2">
+          {(
+            [
+              ['Fast pris', 'Du anger vilket pris du vill sälja för. Köpare kan acceptera priset direkt.', true],
+              ['Ta emot erbjudanden', 'Du anger ett önskat pris men köpare kan lämna egna erbjudanden.', false],
+            ] as const
+          ).map(([k, text, rec]) => (
+            <button key={k} onClick={() => dispatch({ type: 'LISTING_PATCH', patch: { priceType: k } })} className={cn('rounded-2xl border-2 p-5 text-left transition', pt === k ? 'border-petrol-600 bg-petrol-50/60' : 'border-sand-300 bg-white hover:border-ink-faint')} aria-pressed={pt === k}>
+              <p className="flex flex-wrap items-center gap-2 font-semibold">
+                <span className={cn('flex h-5 w-5 items-center justify-center rounded-full border-2', pt === k ? 'border-petrol-700 bg-petrol-700' : 'border-sand-300')}>{pt === k && <span className="h-2 w-2 rounded-full bg-white" />}</span>
+                {k}
+                {rec && <span className="rounded-full bg-mint-200 px-2 py-0.5 text-[11px] font-bold text-petrol-900">Rekommenderat</span>}
+              </p>
+              <p className="mt-2 text-sm text-ink-muted">{text}</p>
+            </button>
+          ))}
+        </div>
+      </Q>
+
+      <Q title="Vilket pris vill du sälja bostaden för?" text={fixed ? 'Ange det pris du är beredd att sälja bostaden för. Köpare kan acceptera priset och gå direkt vidare mot kontrakt.' : 'Ange ditt önskade pris. Köpare kan acceptera det eller lämna ett eget erbjudande.'}>
+        <Field label={fixed ? 'Fast pris' : 'Önskat pris'}>
+          <div className="relative">
+            <Input inputMode="numeric" value={price} onChange={(e) => setPrice(moneyInput(e.target.value))} className="h-16 pr-14 text-2xl font-bold" />
+            <span className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-lg text-ink-muted">kr</span>
+          </div>
+        </Field>
+        {perSqm > 0 && <p className="mt-2 text-ink-muted">{formatSEK(perSqm)}/m²</p>}
+        <div className="mt-6 rounded-2xl bg-sand-100 p-5">
+          <p className="font-semibold">Så fungerar det</p>
+          <p className="mt-1 text-sm leading-relaxed text-ink-soft">
+            {fixed
+              ? 'En köpare kan meddela att den vill köpa bostaden till ditt angivna pris. Du granskar därefter köparen, finansiering, önskat tillträde och eventuella villkor innan ni går vidare mot kontrakt.'
+              : 'Köpare kan acceptera ditt önskade pris eller skicka ett eget erbjudande. Du jämför förslagen och väljer själv vem du går vidare med.'}
+          </p>
+        </div>
+        <p className="mt-4 flex items-start gap-2 text-sm text-ink-muted">
+          <Info className="mt-0.5 h-4 w-4 shrink-0" /> Vi gör ingen automatisk värdering. Jämför gärna med sålda bostäder i området.
+        </p>
+        <Nav
+          onBack={onBack}
+          disabled={!n}
+          hint="Ange ett pris."
+          onNext={() => {
+            dispatch({ type: 'UPDATE_PROPERTY', patch: { askingPrice: n } })
+            onNext()
+          }}
+        />
+      </Q>
+    </div>
   )
 }
 

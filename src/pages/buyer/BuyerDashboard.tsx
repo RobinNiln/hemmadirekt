@@ -58,9 +58,9 @@ export default function BuyerDashboard() {
           <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Hej {buyer.name}</h1>
           <p className="mt-2 text-ink-muted">{paused ? 'Dina matchningar är pausade.' : noMatches ? 'Vi letar vidare åt dig.' : `Vi har hittat ${active.length} bostäder som passar det du söker.`}</p>
         </div>
-        {acceptedBid && (
-          <Button to="/kopare" variant="secondary">
-            Din pågående bostadsaffär <ArrowRight className="h-4 w-4" />
+        {(buyer.requests.length > 0 || acceptedBid) && (
+          <Button to="/mina-affarer" variant="secondary">
+            Dina bostadsaffärer ({buyer.requests.filter((r) => r.status !== 'Tillbakadragen').length}) <ArrowRight className="h-4 w-4" />
           </Button>
         )}
       </div>

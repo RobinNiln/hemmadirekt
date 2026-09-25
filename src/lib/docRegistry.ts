@@ -19,7 +19,7 @@ export type Phase = 'fore' | 'bud' | 'avtal' | 'betalning' | 'tilltrade'
 
 export const PHASES: { id: Phase; label: string; text: string }[] = [
   { id: 'fore', label: 'Före försäljning', text: 'Uppgifter om dig och bostaden som köpare behöver se.' },
-  { id: 'bud', label: 'Budgivning och köpare', text: 'Vem som lagt bud och vem som blir köpare.' },
+  { id: 'bud', label: 'Köpförfrågningar och köpare', text: 'Vem som vill köpa och vem som blir köpare.' },
   { id: 'avtal', label: 'Avtal', text: 'Avtalet och det som hör till det.' },
   { id: 'betalning', label: 'Betalning', text: 'Handpenning och slutlig uträkning.' },
   { id: 'tilltrade', label: 'Tillträde', text: 'Dagen då köparen betalar och får nycklarna.' },
@@ -72,6 +72,8 @@ export function isSignedContract(s: SaleState) {
 export function buyerHasFinancing(s: SaleState, bid: Bid | null) {
   if (!bid) return false
   if (s.docs.financingRegistered || bid.bidderId === 'direct-buyer') return true
+  // Köparen har själv angett finansiering i sin köpförfrågan (inte kontrollerat mot bank).
+  if (bid.financing && bid.financing.type !== 'behover') return true
   return !!s.interested.find((i) => i.id === bid.bidderId)?.loanPromise
 }
 
@@ -151,14 +153,14 @@ export function buildDocs(s: SaleState, bid: Bid | null): DocItem[] {
     status: d.inspectionFile ? S.done('Uppladdad') : S.todo(brf ? 'Valfritt' : 'Rekommenderas'),
   })
 
-  // ---------------- Budgivning och köpare ----------------
+  // ---------------- Köpförfrågningar och köpare ----------------
   if (s.mode === 'sell') {
     add({
-      id: 'budhistorik', name: 'Budhistorik', phase: 'bud', responsible: 'Vi hämtar automatiskt',
-      short: 'Alla bud, i den ordning de kom in.',
-      what: 'Budhistoriken skapas automatiskt från registrerade bud. Den visar belopp, budgivare och tid för varje bud.',
-      when: 'Under budgivningen – sparas för hela affären.',
-      status: s.bids.length ? S.done() : S.todo('Skapas när första budet kommer'),
+      id: 'budhistorik', name: 'Köpförfrågningar', phase: 'bud', responsible: 'Vi hämtar automatiskt',
+      short: 'Alla förfrågningar och erbjudanden, med tidsstämpel.',
+      what: 'En sammanställning som skapas automatiskt från registrerade köpförfrågningar och erbjudanden. Den visar belopp, typ, köpare och tidpunkt.',
+      when: 'Medan bostaden är till salu – sparas för hela affären.',
+      status: s.bids.length ? S.done() : S.todo('Skapas vid första förfrågan'),
     })
   }
   add({
@@ -314,13 +316,15 @@ export function nextStep(s: SaleState, bid: Bid | null, highest: Bid | null): Ne
   if (!brf && !d.questionnaireDone) return { title: 'Fyll i säljarens frågelista', text: 'Berätta vad du vet om husets skick. Det tar ungefär fem minuter och skyddar både dig och köparen.', cta: 'Starta', to: `${DOCS}?doc=fragelista` }
 
   if (!bid) {
-    if (s.bids.length && highest) return { title: `Du har ${s.bids.length} bud`, text: `Högsta budet är ${highest.amount.toLocaleString('sv-SE')} kr från ${highest.bidderName}. När du valt köpare skapar vi ${cName}et.`, cta: 'Till budgivningen', to: '/min-forsaljning/budgivning' }
-    if (s.marketSimulated) return { title: 'Visningen är genomförd', text: 'Du har fått intressenter. Bud brukar komma in inom några dagar efter visningen.', cta: 'Se intressenter', to: '/min-forsaljning/intressenter' }
+    const active = s.bids.filter((b) => b.status !== 'Avböjd' && b.status !== 'Tillbakadragen')
+    const acc = active.filter((b) => b.kind === 'accept').length
+    if (active.length) return { title: acc ? `${acc} ${acc === 1 ? 'köpare vill' : 'köpare vill'} köpa till ditt pris` : `Du har ${active.length} erbjudande${active.length === 1 ? '' : 'n'}`, text: `Jämför köparnas finansiering, tillträde och villkor – och välj själv vem du vill gå vidare med. Därefter skapar vi ${cName}et.`, cta: 'Hantera köpare', to: '/min-forsaljning/forfragningar' }
+    if (s.marketSimulated) return { title: 'Visningen är genomförd', text: 'Du har fått intressenter. Köpförfrågningar brukar komma in inom några dagar efter visningen.', cta: 'Se intressenter', to: '/min-forsaljning/intressenter' }
     return { title: 'Din annons är ute – nu väntar vi på visningen', text: 'Dokumenten inför försäljningen är klara. Köpare kan nu hitta bostaden och boka plats på visningen.', cta: 'Visa annonsen', to: '/bostad/ringvagen-128' }
   }
 
   if (!buyerHasFinancing(s, bid)) return { title: 'Köparen behöver visa finansiering', text: `${bid.bidderName} har inte registrerat något lånelöfte än. Du kan påbörja avtalet ändå, men vänta med att signera tills det är klart.`, cta: 'Se finansiering', to: `${DOCS}?doc=finansiering` }
-  if (!c.draftCreated) return { title: 'Bra! Budet är accepterat.', text: `Nästa steg är att skapa ${cName}et. Det tar cirka fem minuter.`, cta: c.step > 1 ? 'Fortsätt' : 'Starta', to: '/min-forsaljning/avtal' }
+  if (!c.draftCreated) return { title: 'Bra! Du har valt köpare.', text: `Nästa steg är att skapa ${cName}et. Det tar cirka fem minuter.`, cta: c.step > 1 ? 'Fortsätt' : 'Starta', to: '/min-forsaljning/avtal' }
   if (!signed) return { title: c.approved ? 'Dags att signera' : 'Granska avtalsutkastet', text: c.approved ? 'Avtalet är godkänt. Nu signerar du och köparen digitalt.' : 'Utkastet är klart. Läs igenom det och godkänn det för signering.', cta: 'Fortsätt', to: '/min-forsaljning/avtal' }
 
   if (brf && !d.membership.created) return { title: 'Avtalet är klart.', text: 'Nästa steg är att skicka medlemsansökan till bostadsrättsföreningen.', cta: 'Fortsätt', to: `${DOCS}?doc=medlem` }

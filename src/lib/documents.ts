@@ -111,7 +111,7 @@ export function documentText(id: DocId, s: SaleState, bid: Bid | null): string {
       return `${DEMO_HEADER}${d.title.toUpperCase()}\n\n${contractSections(d).map((x) => `${x.title}\n${x.body}`).join('\n\n')}\n\nSignerat av säljare: ${s.contract.signedBySeller ? 'Ja' : 'Nej'}\nSignerat av köpare: ${s.contract.signedByBuyer ? 'Ja' : 'Nej'}`
     }
     case 'budhistorik':
-      return `${head}${s.bids.map((b) => `${b.time}  ${formatSEK(b.amount).padStart(14)}  ${b.bidderName}`).join('\n')}\n\nAlla budgivare verifierade med BankID (simulerat).`
+      return `${head}${s.bids.map((b) => `${b.time}  ${formatSEK(b.amount).padStart(14)}  ${b.kind === 'accept' ? 'Accepterar fast pris' : 'Annat erbjudande'}  ${b.bidderName}  (${b.status})`).join('\n')}\n\nAlla köpare verifierade med BankID (simulerat). Tidsordningen innebär ingen förtur.`
     case 'likvid': {
       const t = settlementTotals(s)
       return `${head}Köpeskilling: ${formatSEK(s.contract.price)}\n– Handpenning: ${formatSEK(s.contract.deposit)}\n${s.docs.settlement.items.map((i) => `${i.type === 'Avdrag' ? '–' : '+'} ${i.label}: ${formatSEK(i.amount)}`).join('\n')}\n\nKvar att betala: ${formatSEK(t.remaining)}`

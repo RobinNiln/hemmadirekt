@@ -23,7 +23,7 @@ export interface Listing {
   type: PropertyType
   tenure: 'Bostadsrätt' | 'Äganderätt'
   price: number
-  priceType?: 'Utgångspris' | 'Fast pris'
+  priceType?: 'Fast pris' | 'Ta emot erbjudanden'
   fee: number // månadsavgift (bostadsrätt) eller driftkostnad (äganderätt)
   rooms: number
   bedrooms: number
@@ -59,7 +59,7 @@ type Raw = Omit<Listing, 'publishedAt' | 'status' | 'tenure' | 'sellerId'> & { s
 const RAW: Raw[] = [
   {
     id: RINGVAGEN_ID, street: 'Ringvägen 128', postalCode: '118 61', area: 'Södermalm', city: 'Stockholm', type: 'Bostadsrätt',
-    price: 4495000, priceType: 'Utgångspris', fee: 4250, rooms: 3, bedrooms: 2, size: 76, floor: '4 av 5', elevator: true, built: 1929,
+    price: 4895000, priceType: 'Fast pris', fee: 4250, rooms: 3, bedrooms: 2, size: 76, floor: '4 av 5', elevator: true, built: 1929,
     association: 'Bostadsrättsföreningen Solgläntan', coordinates: [59.3086, 18.0712],
     features: ['balkong', 'hiss', 'oppen-planlosning', 'diskmaskin', 'tvattmaskin', 'dusch', 'renoverat-kok', 'ljusinslapp', 'forrad', 'parkett'],
     headline: 'Ljus trea med balkong och social planlösning', description: RINGVAGEN_DESCRIPTION,
@@ -68,7 +68,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'hagerstensvagen-112', street: 'Hägerstensvägen 112', postalCode: '126 49', area: 'Aspudden', city: 'Stockholm', type: 'Bostadsrätt',
-    price: 4195000, priceType: 'Utgångspris', fee: 4600, rooms: 3, bedrooms: 2, size: 72, floor: '2 av 4', elevator: true, built: 1947,
+    price: 4195000, priceType: 'Fast pris', fee: 4600, rooms: 3, bedrooms: 2, size: 72, floor: '2 av 4', elevator: true, built: 1947,
     association: 'BRF Aspen 4', coordinates: [59.3067, 18.0017],
     features: ['balkong', 'hiss', 'genomgaende', 'separat-kok', 'tvattmaskin', 'dusch', 'forrad'],
     headline: 'Genomgående trea med balkong i väster', description: 'Trivsam och ljus trea med fönster åt två håll, balkong i västerläge och ett praktiskt kök med matplats. Huset har hiss och föreningen har nyligen renoverat tvättstugan.',
@@ -77,7 +77,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'hovdingagatan-20', street: 'Hövdingagatan 20', postalCode: '126 52', area: 'Aspudden', city: 'Stockholm', type: 'Bostadsrätt',
-    price: 4650000, priceType: 'Utgångspris', fee: 3950, rooms: 3, bedrooms: 2, size: 70, floor: '5 av 6', elevator: true, built: 2021,
+    price: 4650000, priceType: 'Fast pris', fee: 3950, rooms: 3, bedrooms: 2, size: 70, floor: '5 av 6', elevator: true, built: 2021,
     association: 'BRF Hövdingen', coordinates: [59.3051, 18.0046],
     features: ['balkong', 'hiss', 'oppen-planlosning', 'nyproduktion', 'diskmaskin', 'tvattmaskin', 'torktumlare', 'golvvarme', 'ljusinslapp', 'dusch'],
     headline: 'Nyproducerad trea högt upp med västerbalkong', description: 'Nyproducerad trea med öppen planlösning mellan kök och vardagsrum, stora fönsterpartier och balkong i väster. Badrummet har golvvärme och tvättpelare.',
@@ -86,7 +86,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'tellusborgsvagen-45', street: 'Tellusborgsvägen 45', postalCode: '126 32', area: 'Midsommarkransen', city: 'Stockholm', type: 'Bostadsrätt',
-    price: 3950000, priceType: 'Utgångspris', fee: 4100, rooms: 3, bedrooms: 2, size: 71, floor: '3 av 5', elevator: true, built: 2020,
+    price: 3950000, priceType: 'Fast pris', fee: 4100, rooms: 3, bedrooms: 2, size: 71, floor: '3 av 5', elevator: true, built: 2020,
     association: 'BRF Kransen Park', coordinates: [59.3012, 18.0118],
     features: ['balkong', 'hiss', 'oppen-planlosning', 'nyproduktion', 'diskmaskin', 'tvattmaskin', 'dusch', 'laddplats'],
     headline: 'Modern trea med balkong i nyare hus', description: 'Modern trea i hus från 2020 med öppen planlösning, två sovrum och balkong. Föreningen har laddplatser i garaget.',
@@ -95,7 +95,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'svandammsvagen-18', street: 'Svandammsvägen 18', postalCode: '126 35', area: 'Midsommarkransen', city: 'Stockholm', type: 'Bostadsrätt',
-    price: 5350000, priceType: 'Utgångspris', fee: 5400, rooms: 4, bedrooms: 3, size: 88, floor: '2 av 3', elevator: true, built: 1939,
+    price: 5350000, priceType: 'Fast pris', fee: 5400, rooms: 4, bedrooms: 3, size: 88, floor: '2 av 3', elevator: true, built: 1939,
     association: 'BRF Svandammen', coordinates: [59.3038, 18.0087],
     features: ['balkong', 'hiss', 'separat-kok', 'originaldetaljer', 'badkar', 'tvattmaskin', 'parkeringsplats', 'forrad'],
     headline: 'Fyra rum med originaldetaljer och parkering', description: 'Rymlig fyra i funkishus med bevarade detaljer, tre sovrum och balkong mot gården. Badrum med badkar. Parkeringsplats på gården ingår i föreningens kö.',
@@ -104,7 +104,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'katarina-bangata-61', street: 'Katarina Bangata 61', postalCode: '116 39', area: 'Södermalm', city: 'Stockholm', type: 'Bostadsrätt',
-    price: 5650000, priceType: 'Utgångspris', fee: 3800, rooms: 3, bedrooms: 2, size: 69, floor: '4 av 6', elevator: true, built: 1911,
+    price: 5650000, priceType: 'Fast pris', fee: 3800, rooms: 3, bedrooms: 2, size: 69, floor: '4 av 6', elevator: true, built: 1911,
     association: 'BRF Katarina 12', coordinates: [59.3131, 18.0823],
     features: ['balkong', 'hiss', 'sekelskifte', 'originaldetaljer', 'kakelugn', 'separat-kok', 'dusch', 'ljusinslapp'],
     headline: 'Sekelskiftestrea med kakelugn och balkong', description: 'Charmig trea i sekelskifteshus med kakelugn, höga takhöjder och balkong. Separat kök med matplats.',
@@ -113,7 +113,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'hornsgatan-154', street: 'Hornsgatan 154', postalCode: '117 28', area: 'Södermalm', city: 'Stockholm', type: 'Bostadsrätt',
-    price: 5950000, priceType: 'Utgångspris', fee: 5900, rooms: 4, bedrooms: 3, size: 94, floor: '5 av 6', elevator: true, built: 1931,
+    price: 5950000, priceType: 'Ta emot erbjudanden', fee: 5900, rooms: 4, bedrooms: 3, size: 94, floor: '5 av 6', elevator: true, built: 1931,
     association: 'BRF Hornstull', coordinates: [59.3161, 18.0333],
     features: ['balkong', 'hiss', 'hornlage', 'genomgaende', 'badkar', 'diskmaskin', 'tvattmaskin', 'cityutsikt'],
     headline: 'Fyra i hörnläge med balkong och utsikt', description: 'Fyra i hörnläge med fönster åt tre håll, balkong och utsikt över staden. Badrum med badkar och tvättmaskin.',
@@ -122,7 +122,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'skanegatan-88', street: 'Skånegatan 88', postalCode: '116 37', area: 'Södermalm', city: 'Stockholm', type: 'Bostadsrätt',
-    price: 3650000, priceType: 'Utgångspris', fee: 2900, rooms: 2, bedrooms: 1, size: 52, floor: '1 av 5', elevator: false, built: 1928,
+    price: 3650000, priceType: 'Fast pris', fee: 2900, rooms: 2, bedrooms: 1, size: 52, floor: '1 av 5', elevator: false, built: 1928,
     association: 'BRF Nytorget', coordinates: [59.3128, 18.0842],
     features: ['originaldetaljer', 'separat-kok', 'dusch'],
     headline: 'Tvåa vid Nytorget', description: 'Välplanerad tvåa med originaldetaljer ett stenkast från Nytorget. Separat kök och sovrum mot gården.',
@@ -131,7 +131,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'rorstrandsgatan-34', street: 'Rörstrandsgatan 34', postalCode: '113 40', area: 'Vasastan', city: 'Stockholm', type: 'Bostadsrätt',
-    price: 5295000, priceType: 'Utgångspris', fee: 3450, rooms: 2, bedrooms: 1, size: 57, floor: '3 av 6', elevator: true, built: 1911,
+    price: 5295000, priceType: 'Fast pris', fee: 3450, rooms: 2, bedrooms: 1, size: 57, floor: '3 av 6', elevator: true, built: 1911,
     association: 'BRF Rörstrand 7', coordinates: [59.3421, 18.0336],
     features: ['hiss', 'kakelugn', 'sekelskifte', 'originaldetaljer', 'separat-kok'],
     headline: 'Sekelskiftestvåa med kakelugn', description: 'Charmig tvåa i klassiskt sekelskifteshus. Högt i tak, fiskbensparkett och kakelugn i vardagsrummet.',
@@ -140,7 +140,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'kungsholms-strand-167', street: 'Kungsholms strand 167', postalCode: '112 48', area: 'Kungsholmen', city: 'Stockholm', type: 'Bostadsrätt',
-    price: 2950000, priceType: 'Utgångspris', fee: 2180, rooms: 1, bedrooms: 0, size: 38, floor: '5 av 7', elevator: true, built: 1934,
+    price: 2950000, priceType: 'Fast pris', fee: 2180, rooms: 1, bedrooms: 0, size: 38, floor: '5 av 7', elevator: true, built: 1934,
     association: 'BRF Strandkanten', coordinates: [59.3373, 18.0296],
     features: ['hiss', 'sjoutsikt', 'renoverat-badrum'],
     headline: 'Etta med vattenutsikt', description: 'Smart planerad etta med vattenutsikt över Karlbergskanalen. Sovalkov och badrum renoverat 2020.',
@@ -149,7 +149,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'lugnets-alle-52', street: 'Lugnets allé 52', postalCode: '120 66', area: 'Hammarby Sjöstad', city: 'Stockholm', type: 'Bostadsrätt',
-    price: 6850000, priceType: 'Utgångspris', fee: 6120, rooms: 4, bedrooms: 3, size: 98, floor: '6 av 8', elevator: true, built: 2004,
+    price: 6850000, priceType: 'Fast pris', fee: 6120, rooms: 4, bedrooms: 3, size: 98, floor: '6 av 8', elevator: true, built: 2004,
     association: 'BRF Sjöstadsporten', coordinates: [59.3029, 18.1025],
     features: ['balkong', 'hiss', 'oppen-planlosning', 'sjoutsikt', 'garage', 'diskmaskin', 'tvattmaskin', 'badkar'],
     headline: 'Rymlig fyra med inglasad balkong och sjöutsikt', description: 'Rymlig fyra med inglasad balkong och kvällssol över Hammarby sjö. Tre sovrum och två badrum.',
@@ -158,7 +158,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'hammarbyvagen-32', street: 'Hammarbyvägen 32', postalCode: '121 46', area: 'Hammarbyhöjden', city: 'Stockholm', type: 'Bostadsrätt',
-    price: 3595000, priceType: 'Utgångspris', fee: 4300, rooms: 3, bedrooms: 2, size: 68, floor: '3 av 3', elevator: false, built: 1943,
+    price: 3595000, priceType: 'Fast pris', fee: 4300, rooms: 3, bedrooms: 2, size: 68, floor: '3 av 3', elevator: false, built: 1943,
     association: 'BRF Höjden 9', coordinates: [59.2951, 18.1024],
     features: ['balkong', 'hogst-upp', 'naturutsikt', 'separat-kok', 'dusch'],
     headline: 'Trea högst upp med utsikt över grönska', description: 'Trea högst upp i huset med balkong och utsikt över grönområdet. Skogen och Nackareservatet ligger nära.',
@@ -167,7 +167,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'signalgatan-7', street: 'Signalgatan 7', postalCode: '169 72', area: 'Solna', city: 'Solna', type: 'Bostadsrätt',
-    price: 3890000, priceType: 'Utgångspris', fee: 3350, rooms: 2, bedrooms: 1, size: 58, floor: '7 av 12', elevator: true, built: 2022,
+    price: 3890000, priceType: 'Fast pris', fee: 3350, rooms: 2, bedrooms: 1, size: 58, floor: '7 av 12', elevator: true, built: 2022,
     association: 'BRF Signalen', coordinates: [59.3601, 18.0006],
     features: ['balkong', 'hiss', 'nyproduktion', 'oppen-planlosning', 'cityutsikt', 'golvvarme', 'laddplats'],
     headline: 'Nyproducerad tvåa med utsikt', description: 'Nyproducerad tvåa högt upp med balkong och utsikt. Öppen planlösning och golvvärme i badrummet.',
@@ -176,7 +176,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'sockenvagen-211', street: 'Sockenvägen 211', postalCode: '122 63', area: 'Enskede', city: 'Stockholm', type: 'Villa',
-    price: 9950000, priceType: 'Utgångspris', fee: 4200, rooms: 5, bedrooms: 4, size: 142, plotArea: 612, elevator: false, built: 1938,
+    price: 9950000, priceType: 'Fast pris', fee: 4200, rooms: 5, bedrooms: 4, size: 142, plotArea: 612, elevator: false, built: 1938,
     coordinates: [59.2775, 18.0691],
     features: ['tradgard', 'uteplats', 'garage', 'kallare', 'eldstad', 'badkar', 'tvattmaskin'],
     headline: 'Trettiotalsvilla med lummig trädgård', description: 'Välbevarad 30-talsvilla på lummig tomt. Stora sällskapsytor, fyra sovrum och en trädgård med altan i söderläge.',
@@ -185,7 +185,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'tallkrogsvagen-18', street: 'Tallkrogsvägen 18', postalCode: '122 60', area: 'Tallkrogen', city: 'Stockholm', type: 'Radhus',
-    price: 7250000, priceType: 'Utgångspris', fee: 3100, rooms: 4, bedrooms: 3, size: 110, plotArea: 240, elevator: false, built: 1936,
+    price: 7250000, priceType: 'Fast pris', fee: 3100, rooms: 4, bedrooms: 3, size: 110, plotArea: 240, elevator: false, built: 1936,
     coordinates: [59.2713, 18.0856],
     features: ['tradgard', 'uteplats', 'forrad', 'parkeringsplats', 'tvattmaskin'],
     headline: 'Funkisradhus med trädgård', description: 'Funkisradhus med ljusa rum i tre plan, trädgård med uteplats och förråd.',
@@ -194,7 +194,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'nockebyvagen-40', street: 'Nockebyvägen 40', postalCode: '167 71', area: 'Bromma', city: 'Stockholm', type: 'Villa',
-    price: 12900000, priceType: 'Utgångspris', fee: 5200, rooms: 6, bedrooms: 4, size: 168, plotArea: 820, elevator: false, built: 1928,
+    price: 12900000, priceType: 'Ta emot erbjudanden', fee: 5200, rooms: 6, bedrooms: 4, size: 168, plotArea: 820, elevator: false, built: 1928,
     coordinates: [59.3294, 17.9291],
     features: ['tradgard', 'terrass', 'garage', 'laddplats', 'eldstad', 'badkar', 'gast-wc', 'originaldetaljer'],
     headline: 'Stor villa med terrass och garage', description: 'Rymlig villa från 1928 med originaldetaljer, terrass mot trädgården och garage med laddplats.',
@@ -203,7 +203,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'sjovagen-3', street: 'Sjövägen 3', postalCode: '139 90', area: 'Värmdö', city: 'Värmdö', type: 'Fritidshus',
-    price: 3450000, priceType: 'Utgångspris', fee: 1900, rooms: 3, bedrooms: 2, size: 64, plotArea: 1450, elevator: false, built: 1968,
+    price: 3450000, priceType: 'Fast pris', fee: 1900, rooms: 3, bedrooms: 2, size: 64, plotArea: 1450, elevator: false, built: 1968,
     coordinates: [59.2891, 18.5503],
     features: ['tradgard', 'terrass', 'sjoutsikt', 'naturutsikt', 'eldstad'],
     headline: 'Fritidshus med sjöutsikt', description: 'Fritidshus på naturtomt med sjöutsikt, stor terrass och braskamin.',
@@ -212,7 +212,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'linnegatan-41', street: 'Linnégatan 41', postalCode: '413 04', area: 'Linnéstaden', city: 'Göteborg', type: 'Bostadsrätt',
-    price: 3995000, priceType: 'Utgångspris', fee: 3900, rooms: 2, bedrooms: 1, size: 61, floor: '3 av 4', elevator: false, built: 1898,
+    price: 3995000, priceType: 'Fast pris', fee: 3900, rooms: 2, bedrooms: 1, size: 61, floor: '3 av 4', elevator: false, built: 1898,
     association: 'BRF Linnéträdet', coordinates: [57.6967, 11.9523],
     features: ['sekelskifte', 'originaldetaljer', 'separat-kok'],
     headline: 'Karaktärsfull tvåa i landshövdingehus', description: 'Karaktärsfull tvåa i landshövdingehus med burspråk och sovrum mot tyst gård.',
@@ -221,7 +221,7 @@ const RAW: Raw[] = [
   },
   {
     id: 'luthagsesplanaden-22', street: 'Luthagsesplanaden 22', postalCode: '753 10', area: 'Luthagen', city: 'Uppsala', type: 'Bostadsrätt',
-    price: 3450000, priceType: 'Utgångspris', fee: 4450, rooms: 3, bedrooms: 2, size: 74, floor: '2 av 4', elevator: true, built: 1952,
+    price: 3450000, priceType: 'Fast pris', fee: 4450, rooms: 3, bedrooms: 2, size: 74, floor: '2 av 4', elevator: true, built: 1952,
     association: 'BRF Esplanaden', coordinates: [59.8625, 17.6263],
     features: ['balkong', 'hiss', 'separat-kok', 'tvattmaskin'],
     headline: 'Välplanerad trea med balkong', description: 'Välplanerad trea i lugna Luthagen med balkong mot trädgården och rymligt kök.',

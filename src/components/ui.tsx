@@ -86,8 +86,8 @@ export function Badge({ children, tone = 'neutral', className, icon }: { childre
   )
 }
 
-export function StatusDot({ tone = 'green' }: { tone?: 'green' | 'amber' | 'grey' }) {
-  const c = tone === 'green' ? 'bg-emerald-500' : tone === 'amber' ? 'bg-amber-500' : 'bg-ink-faint'
+export function StatusDot({ tone = 'green' }: { tone?: 'green' | 'amber' | 'blue' | 'violet' | 'black' | 'grey' }) {
+  const c = { green: 'bg-emerald-500', amber: 'bg-amber-500', blue: 'bg-sky-500', violet: 'bg-violet-500', black: 'bg-ink', grey: 'bg-ink-faint' }[tone]
   return (
     <span className="relative inline-flex h-2.5 w-2.5">
       {tone === 'green' && <span className={cn('absolute inline-flex h-full w-full animate-ping rounded-full opacity-40', c)} />}

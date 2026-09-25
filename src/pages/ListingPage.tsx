@@ -6,7 +6,8 @@ import { Photo } from '../components/Photo'
 import { DismissModal, MatchExplanation } from '../components/Match'
 import { useListings } from '../state/useListings'
 import { useSale } from '../state/SaleContext'
-import { useBuyer } from '../state/BuyerContext'
+import { PurchaseRequestModal, BindingNote } from '../components/PurchaseRequest'
+import { useBuyer, type BuyerRequest } from '../state/BuyerContext'
 import { matchListing } from '../lib/matching'
 import { featureLabel } from '../data/features'
 import { formatDateLong, formatDateShort, formatSEK, nowTime, parseAmount, uid } from '../lib/format'
@@ -14,13 +15,21 @@ import { BRAND } from '../config/brand'
 import type { Listing } from '../data/listings'
 import NotFound from './NotFound'
 
-type ModalKind = 'viewing' | 'bid' | 'contact' | 'interest'
+type ModalKind = 'viewing' | 'accept' | 'offer' | 'contact' | 'interest'
+
+export interface DealInfo {
+  inProgress: boolean // säljaren har valt en köpare
+  mine: boolean // …och det är du
+  myRequest?: BuyerRequest // din aktiva förfrågan på bostaden
+  onWaitlist: boolean
+}
 
 export default function ListingPage() {
   const { id } = useParams()
   const location = useLocation()
   const { listings, ownId } = useListings()
-  const { buyer, markSeen } = useBuyer()
+  const { buyer, markSeen, joinWaitlist } = useBuyer()
+  const { state, dispatch } = useSale()
   const listing = listings.find((l) => l.id === id)
   const [modal, setModal] = useState<ModalKind | null>(null)
 
@@ -36,6 +45,18 @@ export default function ListingPage() {
   const isOwn = listing.id === ownId
   // I demon spelar samma person både säljare och köpare, så matchningen visas även på den egna annonsen.
   const match = buyer.profile ? matchListing(listing, buyer.profile) : null
+  const accepted = isOwn ? state.bids.find((b) => b.id === state.acceptedBidId) : undefined
+  const myRequest = buyer.requests.find((r) => r.listingId === listing.id && r.status !== 'Tillbakadragen')
+  const deal: DealInfo = {
+    inProgress: !!accepted,
+    mine: !!accepted && accepted.bidderId === 'demo-buyer',
+    myRequest,
+    onWaitlist: buyer.waitlist.includes(listing.id),
+  }
+  const waitlist = () => {
+    joinWaitlist(listing.id)
+    if (isOwn) dispatch({ type: 'NOTIFY', text: `${buyer.name} har anmält fortsatt intresse (reservlista).`, link: '/min-forsaljning/forfragningar' })
+  }
 
   return (
     <div className="pb-10">
@@ -52,9 +73,10 @@ export default function ListingPage() {
           </div>
         )}
       </Container>
-      <ListingBody listing={listing} match={match} onAction={setModal} />
+      <ListingBody listing={listing} match={match} onAction={setModal} deal={deal} onWaitlist={waitlist} />
       <ViewingModal listing={listing} isOwn={isOwn} open={modal === 'viewing'} onClose={() => setModal(null)} />
-      <BidModal listing={listing} isOwn={isOwn} open={modal === 'bid'} onClose={() => setModal(null)} />
+      <PurchaseRequestModal listing={listing} kind="accept" isOwn={isOwn} open={modal === 'accept'} onClose={() => setModal(null)} />
+      <PurchaseRequestModal listing={listing} kind="offer" isOwn={isOwn} open={modal === 'offer'} onClose={() => setModal(null)} />
       <ContactModal open={modal === 'contact'} onClose={() => setModal(null)} />
       <InterestModal listing={listing} isOwn={isOwn} open={modal === 'interest'} onClose={() => setModal(null)} />
     </div>
@@ -62,7 +84,8 @@ export default function ListingPage() {
 }
 
 // Själva annonsen. Används både på objektsidan och i säljarens förhandsgranskning.
-export function ListingBody({ listing, match, onAction, preview }: { listing: Listing; match?: ReturnType<typeof matchListing> | null; onAction?: (m: ModalKind) => void; preview?: boolean }) {
+export function ListingBody({ listing, match, onAction, preview, deal, onWaitlist }: { listing: Listing; match?: ReturnType<typeof matchListing> | null; onAction?: (m: ModalKind) => void; preview?: boolean; deal?: DealInfo; onWaitlist?: () => void }) {
+  const fixed = (listing.priceType ?? 'Fast pris') === 'Fast pris'
   const [lightbox, setLightbox] = useState<number | null>(null)
   const { buyer, toggleSave } = useBuyer()
   const [dismissOpen, setDismissOpen] = useState(false)
@@ -115,9 +138,11 @@ export function ListingBody({ listing, match, onAction, preview }: { listing: Li
             {listing.area}, {listing.city}
           </p>
           {listing.headline && <p className="mt-4 text-xl font-semibold text-ink-soft">{listing.headline}</p>}
-          <p className="mt-6 text-3xl font-bold tracking-tight">
-            {formatSEK(listing.price)} <span className="text-base font-medium text-ink-muted">{listing.priceType ?? 'Utgångspris'}</span>
-          </p>
+          <div className="mt-6 flex flex-wrap items-end gap-x-4 gap-y-2">
+            <p className="text-4xl font-extrabold tracking-tight sm:text-5xl">{formatSEK(listing.price)}</p>
+            <PriceBadge fixed={fixed} />
+          </div>
+          <p className="mt-2 text-ink-soft">{fixed ? 'Det här är priset säljaren vill ha.' : 'Säljarens önskade pris. Du kan acceptera det eller lämna ett eget erbjudande.'}</p>
 
           <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-sand-300/70 bg-sand-300/70 sm:grid-cols-3">
             {[
@@ -210,30 +235,78 @@ export function ListingBody({ listing, match, onAction, preview }: { listing: Li
           </section>
         </div>
 
-        {/* CTA-BOX */}
+        {/* CTA-BOX – fast pris är huvudmodellen */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <Card className="p-6">
-            <h2 className="text-xl font-bold">Intresserad av bostaden?</h2>
-            <p className="mt-1 text-sm text-ink-muted">Boka visning, visa intresse eller lägg ett bud direkt här.</p>
-            <div className="mt-5 space-y-2.5">
-              <Button full size="lg" onClick={() => act('viewing')} disabled={preview}>
-                <Calendar className="h-5 w-5" /> Boka visning
-              </Button>
-              <Button full size="lg" variant="secondary" onClick={() => act('interest')} disabled={preview || shared}>
-                <Hand className="h-5 w-5" /> {shared ? 'Du har visat intresse ✓' : 'Jag är intresserad'}
-              </Button>
-              <Button full size="lg" variant="accent" onClick={() => act('bid')} disabled={preview}>
-                <Gavel className="h-5 w-5" /> Lägg bud
-              </Button>
-              <Button full variant="ghost" onClick={() => act('contact')} disabled={preview}>
-                <MessageSquare className="h-4 w-4" /> Kontakta säljaren
-              </Button>
+          <Card className="overflow-hidden">
+            <div className="border-b border-sand-200 bg-sand-50 px-6 py-5">
+              <PriceBadge fixed={fixed} />
+              <p className="mt-2 text-3xl font-extrabold tracking-tight">{formatSEK(listing.price)}</p>
+              <p className="text-sm text-ink-muted">{fixed ? 'Priset säljaren vill ha för bostaden.' : 'Säljaren tar emot erbjudanden.'}</p>
             </div>
-            <div className="mt-6 flex items-start gap-3 rounded-xl bg-mint-100/70 p-4">
-              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-petrol-700" />
-              <div>
-                <p className="text-sm font-semibold text-petrol-800">Säljaren använder {BRAND.name}</p>
-                <p className="mt-0.5 text-xs leading-relaxed text-petrol-800/80">Alla budgivare legitimeras. Budhistoriken är öppen och sparas.</p>
+            <div className="p-6">
+              {deal?.mine ? (
+                <div className="rounded-xl bg-mint-100 p-4">
+                  <p className="font-bold text-petrol-900">Säljaren går vidare med dig</p>
+                  <p className="mt-1 text-sm text-petrol-800">Nästa steg är att skapa köpekontraktet.</p>
+                  <Button to="/mina-affarer" size="sm" className="mt-3">
+                    Visa din affär
+                  </Button>
+                </div>
+              ) : deal?.inProgress ? (
+                <div className="rounded-xl bg-amber-50 p-4 ring-1 ring-amber-200">
+                  <p className="flex items-center gap-2 font-bold text-amber-900">
+                    <span className="h-2.5 w-2.5 rounded-full bg-amber-500" /> Affär pågår
+                  </p>
+                  <p className="mt-1 text-sm text-amber-900/90">Säljaren har valt att gå vidare med en köpare.</p>
+                  {deal.onWaitlist ? (
+                    <p className="mt-3 flex items-center gap-1.5 text-sm font-semibold text-petrol-700">
+                      <Check className="h-4 w-4" /> Du står på reservlistan
+                    </p>
+                  ) : (
+                    <Button variant="secondary" size="sm" className="mt-3" onClick={onWaitlist} disabled={preview}>
+                      Anmäl fortsatt intresse
+                    </Button>
+                  )}
+                </div>
+              ) : deal?.myRequest ? (
+                <div className="rounded-xl bg-petrol-50 p-4 ring-1 ring-petrol-100">
+                  <p className="font-bold text-petrol-900">{deal.myRequest.kind === 'offer' ? 'Ditt erbjudande är skickat' : 'Din köpförfrågan är skickad'}</p>
+                  <p className="mt-1 text-sm text-petrol-800">
+                    {formatSEK(deal.myRequest.amount)} · Väntar på säljaren
+                  </p>
+                  <Button to="/mina-affarer" size="sm" variant="secondary" className="mt-3">
+                    Visa min förfrågan
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button full size="lg" onClick={() => act(fixed ? 'accept' : 'offer')} disabled={preview} className="h-auto min-h-14 whitespace-normal py-3 text-left">
+                    {fixed ? `Jag vill köpa för ${formatSEK(listing.price)}` : 'Lämna erbjudande'}
+                  </Button>
+                  {fixed && <p className="mt-2 text-sm text-ink-soft">Slipp traditionell budgivning. Om säljaren går vidare med dig går ni direkt mot kontrakt.</p>}
+                  <Button full variant="secondary" className="mt-3" onClick={() => act(fixed ? 'offer' : 'accept')} disabled={preview}>
+                    {fixed ? 'Lämna annat erbjudande' : `Köp för önskat pris`}
+                  </Button>
+                </>
+              )}
+              <BindingNote className="mt-4" />
+              <div className="mt-5 space-y-1 border-t border-sand-200 pt-4">
+                <Button full variant="ghost" onClick={() => act('viewing')} disabled={preview}>
+                  <Calendar className="h-4 w-4" /> Boka visning
+                </Button>
+                <Button full variant="ghost" onClick={() => act('interest')} disabled={preview || shared}>
+                  <Hand className="h-4 w-4" /> {shared ? 'Du har delat din profil ✓' : 'Jag är intresserad'}
+                </Button>
+                <Button full variant="ghost" onClick={() => act('contact')} disabled={preview}>
+                  <MessageSquare className="h-4 w-4" /> Kontakta säljaren
+                </Button>
+              </div>
+              <div className="mt-4 flex items-start gap-3 rounded-xl bg-mint-100/70 p-4">
+                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-petrol-700" />
+                <div>
+                  <p className="text-sm font-semibold text-petrol-800">Säljaren använder {BRAND.name}</p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-petrol-800/80">Alla köpare legitimeras. Varje köpförfrågan får en tidsstämpel och sparas.</p>
+                </div>
               </div>
             </div>
           </Card>
@@ -411,67 +484,6 @@ function ViewingModal({ listing, isOwn, open, onClose }: { listing: Listing; isO
   )
 }
 
-function BidModal({ listing, isOwn, open, onClose }: { listing: Listing; isOwn: boolean; open: boolean; onClose: () => void }) {
-  const { dispatch, highestBid, state } = useSale()
-  const [phase, setPhase] = useVerify(open)
-  const current = isOwn && highestBid ? highestBid.amount : null
-  const minBid = current ? current + 10000 : Math.round(listing.price * 0.95)
-  const [amount, setAmount] = useState('')
-  const [access, setAccess] = useState('2026-12-15')
-  useEffect(() => {
-    if (open) setAmount(String(current ? current + 25000 : listing.price))
-  }, [open, current, listing.price])
-
-  const value = parseAmount(amount)
-  const tooLow = value < minBid
-  const locked = isOwn && state.acceptedBidId !== null
-
-  const submit = () => {
-    if (tooLow) return
-    if (isOwn) {
-      dispatch({
-        type: 'ADD_BID',
-        bid: { id: uid('b'), bidderId: 'demo-buyer', bidderName: 'Du (demoköpare)', amount: value, time: nowTime(), desiredAccess: access },
-      })
-    }
-    setPhase('done')
-  }
-
-  return (
-    <Modal open={open} onClose={onClose} title="Lägg bud">
-      {locked ? (
-        <p className="text-ink-muted">Säljaren har redan accepterat ett bud på den här bostaden. Budgivningen är avslutad.</p>
-      ) : phase === 'intro' || phase === 'verifying' ? (
-        <VerifyStep text="Alla budgivare legitimeras med BankID. Det gör budgivningen säker och transparent." verifying={phase === 'verifying'} onStart={() => setPhase('verifying')} />
-      ) : phase === 'form' ? (
-        <div className="space-y-4">
-          <div className="rounded-xl bg-sand-100 px-4 py-3">
-            <p className="text-xs text-ink-muted">{current ? 'Nuvarande högsta bud' : 'Utgångspris'}</p>
-            <p className="text-xl font-bold">{formatSEK(current ?? listing.price)}</p>
-          </div>
-          <Field label="Ditt bud (kr)" hint={`Lägsta tillåtna bud: ${formatSEK(minBid)}`}>
-            <Input inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} />
-          </Field>
-          <Field label="Önskat tillträde">
-            <Input type="date" value={access} onChange={(e) => setAccess(e.target.value)} />
-          </Field>
-          <p className="text-xs text-ink-muted">Ett bud på en bostad är inte juridiskt bindande förrän köpekontraktet är signerat.</p>
-          <Button full size="lg" disabled={tooLow} onClick={submit}>
-            Lägg bud på {formatSEK(value)}
-          </Button>
-        </div>
-      ) : (
-        <Done
-          title="Ditt bud är lagt"
-          text={isOwn ? 'Budet syns nu i säljarens budgivning (i demon: din egen dashboard).' : `Du har lagt ${formatSEK(value)}. Du får en notis om någon lägger ett högre bud.`}
-          onClose={onClose}
-          link={isOwn ? { to: '/min-forsaljning/budgivning', label: 'Se budgivningen' } : undefined}
-        />
-      )}
-    </Modal>
-  )
-}
-
 function ContactModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [sent, setSent] = useState(false)
   useEffect(() => {
@@ -523,5 +535,13 @@ function Done({ title, text, onClose, link }: { title: string; text: string; onC
         <Clock className="h-3 w-3" /> {nowTime()}
       </p>
     </div>
+  )
+}
+
+export function PriceBadge({ fixed }: { fixed: boolean }) {
+  return fixed ? (
+    <span className="mb-1.5 inline-flex rounded-full bg-petrol-700 px-3 py-1 text-xs font-bold text-white">Fast pris</span>
+  ) : (
+    <span className="mb-1.5 inline-flex rounded-full bg-sand-200 px-3 py-1 text-xs font-bold text-ink-soft">Tar emot erbjudanden</span>
   )
 }

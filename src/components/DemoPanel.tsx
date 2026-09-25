@@ -38,11 +38,11 @@ export function DemoPanel() {
             onClick={() => {
               if (!state.marketSimulated) dispatch({ type: 'SIMULATE_MARKET' })
               simulateBidding()
-              navigate('/min-forsaljning/budgivning')
+              navigate('/min-forsaljning/forfragningar')
             }}
           >
             {biddingRunning ? <Spinner className="h-4 w-4" /> : <FastForward className="h-4 w-4" />}
-            {biddingRunning ? 'Bud kommer in…' : state.bids.length ? 'Bud inkomna ✓' : 'Simulera budgivning'}
+            {biddingRunning ? 'Förfrågningar kommer in…' : state.bids.length ? 'Köpförfrågningar inkomna ✓' : 'Simulera köpförfrågningar'}
           </Button>
         )}
         <Button

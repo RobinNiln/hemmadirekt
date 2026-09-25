@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, ArrowRight, BadgeCheck, CheckCircle2, FileSignature, Gavel, Info, Pencil, PenLine, Sparkles, UserRound } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BadgeCheck, CheckCircle2, FileSignature, ListChecks, Info, Pencil, PenLine, Sparkles, UserRound } from 'lucide-react'
 import { Button, Card, CheckboxRow, Field, Input, PageHeader, ProgressBar, Spinner, StepIndicator, Textarea, cn } from '../../components/ui'
 import { ContractDocument } from '../../components/ContractDocument'
 import { BankIdModal } from '../../components/BankIdModal'
@@ -30,9 +30,9 @@ export default function ContractFlow() {
     return (
       <div className="space-y-6">
         <PageHeader title="Avtal" />
-        <EmptyPanel icon={<FileSignature className="h-7 w-7" />} title="Avtalet skapas när du valt köpare" text="När du accepterat ett bud guidar vi dig genom avtalet – steg för steg.">
-          <Button to="/min-forsaljning/budgivning">
-            <Gavel className="h-4 w-4" /> Till budgivningen
+        <EmptyPanel icon={<FileSignature className="h-7 w-7" />} title="Avtalet skapas när du valt köpare" text="När du valt vilken köpare du vill gå vidare med guidar vi dig genom avtalet – steg för steg.">
+          <Button to="/min-forsaljning/forfragningar">
+            <ListChecks className="h-4 w-4" /> Till köpförfrågningarna
           </Button>
         </EmptyPanel>
       </div>
@@ -91,7 +91,7 @@ export default function ContractFlow() {
           )}
 
           {stage === 'wizard' && c.step === 2 && (
-            <StepCard title="Köpare" text="Köparen har legitimerat sig med BankID när budet lades.">
+            <StepCard title="Köpare" text="Köparen legitimerade sig med BankID när köpförfrågan skickades.">
               <PartyCard role="Köpare" name={data.buyer} pnr={buyerPnr(acceptedBid.bidderId)} verifiedLabel="Identitet verifierad" />
               <Nav onBack={() => setStep(1)} onNext={() => setStep(3)} nextLabel="Stämmer" />
             </StepCard>
@@ -128,7 +128,7 @@ export default function ContractFlow() {
 
           {stage === 'wizard' && c.step === 5 && (
             <StepCard title="Tillträde" text="Tillträdesdagen är dagen då köparen betalar resten av köpeskillingen och får nycklarna.">
-              <Field label="Tillträdesdag" hint={`Köparen önskade ${formatDateShort(acceptedBid.desiredAccess)} i sitt bud.`}>
+              <Field label="Tillträdesdag" hint={acceptedBid.desiredAccess ? `Köparen önskade ${formatDateShort(acceptedBid.desiredAccess)} i sin köpförfrågan.` : 'Köparen är flexibel – kom överens om ett datum.'}>
                 <Input type="date" value={c.accessDate} onChange={(e) => patch({ accessDate: e.target.value })} className="max-w-xs" />
               </Field>
               <Hint>Vanligt är 1–3 månader efter avtalet. {brf ? 'Köparen behöver hinna bli godkänd av föreningen.' : 'Köparen behöver hinna ordna lån och pantbrev.'}</Hint>
@@ -381,7 +381,7 @@ function PriceStep({ onBack, onNext }: { onBack: () => void; onNext: () => void 
   const [deposit, setDeposit] = useState(formatNumber(c.deposit))
   const pct = c.price ? (parseAmount(deposit) / c.price) * 100 : 0
   return (
-    <StepCard title="Pris" text="Köpeskillingen kommer från budet du accepterade.">
+    <StepCard title="Pris" text="Köpeskillingen kommer från köpförfrågan du valde att gå vidare med.">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="rounded-xl bg-sand-100 p-5">
           <p className="text-sm text-ink-muted">Köpeskilling</p>

@@ -24,7 +24,7 @@ export default function BuyerView() {
   const status = c.completed ? 'Affären är genomförd' : signed ? 'Avtal signerat' : 'Avtal förbereds'
 
   const items = [
-    { label: 'Bud accepterat', done: true },
+    { label: 'Säljaren valde dig', done: true },
     { label: 'Identitet verifierad', done: true },
     { label: 'Finansiering registrerad', done: acceptedBid ? buyerHasFinancing(state, acceptedBid) : true },
     { label: 'Signera avtal', done: signed },
@@ -122,8 +122,8 @@ export default function BuyerView() {
       {!acceptedBid && (
         <p className="mt-4 text-sm text-ink-muted">
           Tips:{' '}
-          <Link className="font-semibold text-petrol-700 hover:underline" to="/min-forsaljning/budgivning">
-            acceptera ett bud
+          <Link className="font-semibold text-petrol-700 hover:underline" to="/min-forsaljning/forfragningar">
+            välj en köpare
           </Link>{' '}
           i säljarens vy så följer köparens vy med.
         </p>

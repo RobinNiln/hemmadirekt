@@ -1,4 +1,4 @@
-import { BadgeCheck, FileLock2, Gavel, Lock, ShieldCheck, History } from 'lucide-react'
+import { BadgeCheck, FileLock2, Lock, ShieldCheck, History, Tag } from 'lucide-react'
 import { cn } from './ui'
 import { PROTOTYPE_DISCLAIMER } from '../config/brand'
 
@@ -7,8 +7,8 @@ import { PROTOTYPE_DISCLAIMER } from '../config/brand'
 
 const TRUST = [
   { icon: BadgeCheck, label: 'BankID-verifierade köpare' },
-  { icon: Gavel, label: 'Säker budgivning' },
-  { icon: History, label: 'Tydlig budhistorik' },
+  { icon: Tag, label: 'Fast pris' },
+  { icon: History, label: 'Tidsstämplade köpförfrågningar' },
   { icon: FileLock2, label: 'Dokument sparade' },
   { icon: Lock, label: 'Krypterad anslutning' },
 ]

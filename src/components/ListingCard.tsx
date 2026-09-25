@@ -28,7 +28,10 @@ export function ListingCard({ listing, own, level }: { listing: Listing; own?: b
             {listing.type} · {listing.area}, {listing.city}
           </p>
           <h3 className="mt-1 text-lg font-bold text-ink">{listing.street}</h3>
-          <p className="mt-2 text-xl font-bold tracking-tight text-ink">{formatSEK(listing.price)}</p>
+          <p className="mt-2 flex items-baseline gap-2 text-xl font-bold tracking-tight text-ink">
+            {formatSEK(listing.price)}
+            <span className="text-xs font-semibold text-petrol-700">{listing.priceType ?? 'Fast pris'}</span>
+          </p>
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-soft">
             <span>{listing.rooms} rum</span>
             <span>{listing.size} m²</span>

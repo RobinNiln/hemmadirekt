@@ -1,6 +1,6 @@
 import { EXAMPLE_UPLOADS_SORTED } from '../lib/images'
 import { RINGVAGEN_DESCRIPTION } from '../data/listings'
-import type { Bid, Contract, DocsState, Interessent, ListingDraft, PropertyDetails, SaleState } from './types'
+import type { Bid, Contract, DocsState, Financing, Interessent, ListingDraft, PropertyDetails, SaleState } from './types'
 
 // Startvärden och demodata. Allt här är påhittat exempeldata.
 
@@ -26,7 +26,7 @@ export const DEFAULT_PROPERTY: PropertyDetails = {
   built: 1929,
   association: DEMO_BRF_NAME,
   associationOrgNr: '769999-0000',
-  askingPrice: 4495000,
+  askingPrice: 4895000,
 }
 
 // Används när man i demon byter bostadstyp till villa/fastighet.
@@ -50,7 +50,7 @@ export const DEMO_VILLA: PropertyDetails = {
   built: 1976,
   association: '',
   associationOrgNr: '',
-  askingPrice: 4495000,
+  askingPrice: 4895000,
 }
 
 // Maskerade personnummer – prototypen hanterar aldrig riktiga personnummer.
@@ -59,6 +59,7 @@ const BUYER_PNR: Record<string, string> = {
   anna: '1985XXXX-XXXX',
   johan: '1981XXXX-XXXX',
   marcus: '1990XXXX-XXXX',
+  sofia: '1988XXXX-XXXX',
   sara: '1993XXXX-XXXX',
 }
 export function buyerPnr(bidderId: string | undefined) {
@@ -68,16 +69,32 @@ export function buyerPnr(bidderId: string | undefined) {
 export const DEMO_INTERESTED: Interessent[] = [
   { id: 'anna', name: 'Anna Andersson', verified: true, loanPromise: true, level: 'Mycket intresserad', note: 'Var på visningen söndag. Frågade om föreningens ekonomi.', attendedViewing: true },
   { id: 'johan', name: 'Johan Nilsson', verified: true, loanPromise: false, level: 'Intresserad', note: 'Har bokat visning. Söker trea på Södermalm.', attendedViewing: true },
-  { id: 'marcus', name: 'Marcus Berg', verified: true, loanPromise: true, level: 'Mycket intresserad', note: 'Vill gärna se bostaden en gång till innan bud.', attendedViewing: true },
+  { id: 'sofia', name: 'Sofia Berg', verified: true, loanPromise: true, level: 'Mycket intresserad', note: 'Vill gärna se bostaden en gång till. Är flexibel med tillträdet.', attendedViewing: true },
   { id: 'sara', name: 'Sara Lindqvist', verified: true, loanPromise: false, level: 'Vill se igen', note: 'Önskar privat visning en vardagskväll.', attendedViewing: false },
 ]
 
+// Tre köpare i demon: två accepterar det fasta priset, en lämnar ett annat erbjudande.
 export const DEMO_BIDS: Bid[] = [
-  { id: 'b1', bidderId: 'johan', bidderName: 'Johan Nilsson', amount: 4500000, time: '12:02', desiredAccess: '2027-01-15' },
-  { id: 'b2', bidderId: 'anna', bidderName: 'Anna Andersson', amount: 4550000, time: '12:14', desiredAccess: '2026-12-15' },
-  { id: 'b3', bidderId: 'johan', bidderName: 'Johan Nilsson', amount: 4600000, time: '12:31', desiredAccess: '2027-01-15' },
-  { id: 'b4', bidderId: 'anna', bidderName: 'Anna Andersson', amount: 4620000, time: '12:48', desiredAccess: '2026-12-15' },
+  {
+    id: 'r1', bidderId: 'anna', bidderName: 'Anna Andersson', amount: 4895000, time: '10:04', desiredAccess: '2026-12-15',
+    kind: 'accept', flexible: false, financing: { type: 'lanelofte', bank: 'Exempelbanken', amount: 4000000, validTo: '2027-02-28' }, conditions: [], otherCondition: '', status: 'Skickad',
+  },
+  {
+    id: 'r2', bidderId: 'johan', bidderName: 'Johan Nilsson', amount: 4895000, time: '10:07', desiredAccess: '2027-01-01',
+    kind: 'accept', flexible: false, financing: { type: 'klar' }, conditions: [], otherCondition: '', status: 'Skickad',
+  },
+  {
+    id: 'r3', bidderId: 'sofia', bidderName: 'Sofia Berg', amount: 4750000, time: '10:13', desiredAccess: '',
+    kind: 'offer', flexible: true, financing: { type: 'lanelofte', bank: 'Exempelbanken', amount: 3800000, validTo: '2027-01-31' }, conditions: [], otherCondition: '', status: 'Skickad',
+  },
 ]
+
+export const FINANCING_LABEL: Record<Financing['type'], string> = {
+  lanelofte: 'Lånelöfte angivet',
+  klar: 'Finansiering klar',
+  kontant: 'Köper utan bolån',
+  behover: 'Behöver ordna finansiering',
+}
 
 export const INCLUDED_OPTIONS: Record<'brf' | 'villa', string[]> = {
   brf: ['Kyl och frys', 'Diskmaskin', 'Garderober', 'Fast belysning', 'Tvättmaskin', 'Mikrovågsugn'],
@@ -114,14 +131,14 @@ export const EMPTY_DOCS: DocsState = {
 export const EMPTY_LISTING: ListingDraft = {
   features: [],
   headline: '',
-  priceType: 'Utgångspris',
+  priceType: 'Fast pris',
   answers: { favorite: '', areaLove: '', highlight: '' },
 }
 
 export const DEMO_LISTING: ListingDraft = {
   features: ['balkong', 'hiss', 'oppen-planlosning', 'diskmaskin', 'tvattmaskin', 'dusch', 'renoverat-kok', 'ljusinslapp', 'forrad', 'parkett'],
   headline: 'Ljus trea med balkong och social planlösning',
-  priceType: 'Utgångspris',
+  priceType: 'Fast pris',
   answers: { favorite: 'ljuset och kvällssolen på balkongen', areaLove: 'närheten till Tantolunden och alla caféer', highlight: '' },
 }
 
@@ -154,7 +171,7 @@ export const EMPTY_STATE: SaleState = {
   marketSimulated: false,
 }
 
-// "Testa en pågående försäljning" – Ringvägen 128 mitt i budgivningen.
+// "Testa en pågående försäljning" – Ringvägen 128 med tre köpförfrågningar att jämföra.
 export function demoState(): SaleState {
   return {
     ...EMPTY_STATE,
@@ -182,8 +199,9 @@ export function demoState(): SaleState {
     marketSimulated: true,
     docs: { ...EMPTY_DOCS, associationVerified: true },
     notifications: [
-      { id: 'n1', text: 'Anna Andersson har lagt ett nytt bud: 4 620 000 kr.', time: '12:48', read: false, link: '/min-forsaljning/budgivning' },
-      { id: 'n2', text: 'Johan Nilsson har lagt ett nytt bud: 4 600 000 kr.', time: '12:31', read: false, link: '/min-forsaljning/budgivning' },
+      { id: 'n1', text: 'Nytt erbjudande: Sofia Berg erbjuder 4 750 000 kr.', time: '10:13', read: false, link: '/min-forsaljning/forfragningar' },
+      { id: 'n2', text: 'Ny köpare accepterar ditt pris: Johan Nilsson vill köpa för 4 895 000 kr.', time: '10:07', read: false, link: '/min-forsaljning/forfragningar' },
+      { id: 'n0', text: 'Ny köpare accepterar ditt pris: Anna Andersson vill köpa för 4 895 000 kr.', time: '10:04', read: false, link: '/min-forsaljning/forfragningar' },
       { id: 'n3', text: 'Tre nya personer har bokat visning.', time: '09:15', read: true, link: '/min-forsaljning' },
     ],
   }

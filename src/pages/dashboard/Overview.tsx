@@ -1,10 +1,10 @@
 import { useSearchParams } from 'react-router-dom'
-import { ArrowRight, Bell, Bookmark, CalendarDays, Eye, Gavel, Hand, PartyPopper, Sparkles, Users } from 'lucide-react'
-import { Badge, Button, Card, Checklist, ProgressBar, Stat } from '../../components/ui'
+import { ArrowRight, Bell, Bookmark, CalendarDays, Eye, Hand, PartyPopper, Sparkles, Users } from 'lucide-react'
+import { Badge, Button, Card, Checklist, ProgressBar, Stat, StatusDot } from '../../components/ui'
 import { TrustRow, VerifiedTag } from '../../components/Trust'
 import { DemoPanel } from '../../components/DemoPanel'
 import { useSale } from '../../state/SaleContext'
-import { saleProgress } from '../../state/progress'
+import { saleProgress, saleStatus } from '../../state/progress'
 import { formatDateLong, formatSEK } from '../../lib/format'
 import { nextStep } from '../../lib/docRegistry'
 import { BuyerCard, useSellerMatches } from './MatchingBuyers'
@@ -17,6 +17,10 @@ export default function Overview() {
   const pct = Math.round((items.filter((i) => i.done).length / items.length) * 100)
   const next = nextStep(state, acceptedBid, highestBid)
   const { bank, shared } = useSellerMatches()
+  const status = saleStatus(state)
+  const liveBids = state.bids.filter((b) => b.status !== 'Avböjd' && b.status !== 'Tillbakadragen')
+  const reqCount = liveBids.filter((b) => b.kind === 'accept').length
+  const offerCount = liveBids.filter((b) => b.kind === 'offer').length
   const direct = state.mode === 'direct'
 
   return (
@@ -26,7 +30,7 @@ export default function Overview() {
           <PartyPopper className="mt-0.5 h-6 w-6 shrink-0 text-mint-200" />
           <div>
             <p className="font-bold">Din annons är publicerad!</p>
-            <p className="mt-0.5 text-sm text-petrol-100">Den syns nu under Köpa bostad. Köpare kan boka plats på visningen och lägga bud.</p>
+            <p className="mt-0.5 text-sm text-petrol-100">Den syns nu under Köpa bostad. Köpare kan boka visning och meddela att de vill köpa till ditt pris.</p>
           </div>
         </div>
       )}
@@ -138,30 +142,28 @@ export default function Overview() {
               )}
             </Card>
 
-            {/* BUD */}
+            {/* FÖRSÄLJNINGSSTATUS */}
             <Card className="p-6">
-              <div className="flex items-center justify-between">
-                <h2 className="font-bold">Budgivning</h2>
-                <Button variant="ghost" size="sm" to="/min-forsaljning/budgivning">
-                  Öppna
-                </Button>
-              </div>
-              {highestBid ? (
-                <div className="mt-3">
-                  <p className="text-sm text-ink-muted">Högsta bud</p>
-                  <p className="text-3xl font-bold tracking-tight">{formatSEK(highestBid.amount)}</p>
-                  <p className="text-sm text-ink-muted">
-                    {highestBid.bidderName} · {highestBid.time}
-                  </p>
-                  <p className="mt-3 text-sm">
-                    <span className="font-semibold">{state.bids.length}</span> bud från {new Set(state.bids.map((b) => b.bidderId)).size} budgivare
-                  </p>
-                </div>
-              ) : (
-                <div className="mt-3 flex items-center gap-3 text-sm text-ink-muted">
-                  <Gavel className="h-5 w-5" /> Inga bud än.
-                </div>
-              )}
+              <h2 className="font-bold">Försäljningsstatus</h2>
+              <p className="mt-3 flex items-center gap-2 font-semibold">
+                <StatusDot tone={status.tone} /> {status.label}
+              </p>
+              <p className="mt-3 text-sm text-ink-muted">{state.listing.priceType}</p>
+              <p className="text-2xl font-bold tracking-tight">{formatSEK(state.property.askingPrice)}</p>
+              <ul className="mt-3 space-y-1 text-sm">
+                <li>
+                  <span className="font-semibold">{reqCount}</span> köpförfrågningar
+                </li>
+                <li>
+                  <span className="font-semibold">{offerCount}</span> andra erbjudanden
+                </li>
+                <li>
+                  <span className="font-semibold">{state.viewing?.signups ?? 0}</span> intressenter
+                </li>
+              </ul>
+              <Button to="/min-forsaljning/forfragningar" size="sm" className="mt-4">
+                Hantera köpare <ArrowRight className="h-4 w-4" />
+              </Button>
             </Card>
           </div>
         </>

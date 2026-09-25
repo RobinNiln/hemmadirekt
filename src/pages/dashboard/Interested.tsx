@@ -61,7 +61,7 @@ export default function Interested() {
                       </Badge>
                     )}
                     {i.attendedViewing && <Badge>Var på visning</Badge>}
-                    {top && <Badge tone="petrol">Bud: {new Intl.NumberFormat('sv-SE').format(top.amount)} kr</Badge>}
+                    {top && <Badge tone="petrol">{top.kind === 'accept' ? 'Köpförfrågan' : 'Erbjudande'}: {new Intl.NumberFormat('sv-SE').format(top.amount)} kr</Badge>}
                   </div>
                   <p className="mt-3 text-sm text-ink-muted">{i.note}</p>
                 </div>

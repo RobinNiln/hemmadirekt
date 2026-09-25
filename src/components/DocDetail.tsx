@@ -125,12 +125,14 @@ function DocAction({ doc }: { doc: DocItem }) {
     case 'budhistorik':
       return (
         <div>
-          <p className="mb-3 text-sm text-ink-muted">Budhistoriken skapas automatiskt från registrerade bud.</p>
+          <p className="mb-3 text-sm text-ink-muted">Skapas automatiskt från registrerade köpförfrågningar och erbjudanden, med tidsstämpel.</p>
           {state.bids.length ? (
             <ul className="space-y-1.5">
               {state.bids.map((b) => (
                 <li key={b.id} className="flex justify-between rounded-lg bg-sand-100 px-3 py-2 text-sm">
-                  <span className="font-semibold">{formatSEK(b.amount)}</span>
+                  <span className="font-semibold">
+                    {formatSEK(b.amount)} <span className="font-normal text-ink-muted">· {b.kind === 'accept' ? 'accepterar priset' : 'erbjudande'}</span>
+                  </span>
                   <span className="text-ink-muted">
                     {b.bidderName.split(' ')[0]} · {b.time}
                   </span>
@@ -138,7 +140,7 @@ function DocAction({ doc }: { doc: DocItem }) {
               ))}
             </ul>
           ) : (
-            <Locked>Inga bud har kommit in än.</Locked>
+            <Locked>Inga köpförfrågningar har kommit in än.</Locked>
           )}
         </div>
       )
@@ -146,13 +148,13 @@ function DocAction({ doc }: { doc: DocItem }) {
       return acceptedBid ? (
         <Facts rows={[['Namn', acceptedBid.bidderName], ['Personnummer', buyerPnr(acceptedBid.bidderId)], ['Identitet', '✓ Verifierad med BankID']]} />
       ) : (
-        <Locked>Uppgifterna fylls i automatiskt när du accepterat ett bud.</Locked>
+        <Locked>Uppgifterna fylls i automatiskt när du valt köpare.</Locked>
       )
     case 'finansiering':
       return <Financing />
     case 'avtal': {
       const name = contractName(state)
-      if (!acceptedBid) return <Locked>Blir tillgängligt när du valt köpare i budgivningen.</Locked>
+      if (!acceptedBid) return <Locked>Blir tillgängligt när du valt köpare bland köpförfrågningarna.</Locked>
       const label = signed ? 'Visa avtalet' : state.contract.draftCreated ? 'Fortsätt med avtalet' : `Skapa ${name.toLowerCase()}`
       return (
         <div className="space-y-4">

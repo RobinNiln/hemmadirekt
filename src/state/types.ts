@@ -40,7 +40,7 @@ export interface SalePhoto {
 export interface ListingDraft {
   features: string[]
   headline: string
-  priceType: 'Utgångspris' | 'Fast pris'
+  priceType: 'Fast pris' | 'Ta emot erbjudanden'
   answers: { favorite: string; areaLove: string; highlight: string }
 }
 
@@ -75,13 +75,32 @@ export interface Interessent {
   attendedViewing: boolean
 }
 
+// En köpares förslag till affär. Heter "Bid" i koden av historiska skäl, men i tjänsten
+// är det en KÖPFÖRFRÅGAN (köparen accepterar säljarens fasta pris) eller ett ERBJUDANDE (annat belopp).
+export type RequestKind = 'accept' | 'offer'
+export type RequestStatus = 'Skickad' | 'Under granskning' | 'Accepterad för fortsatt process' | 'Avböjd' | 'Tillbakadragen'
+export type FinancingType = 'lanelofte' | 'klar' | 'kontant' | 'behover'
+
+export interface Financing {
+  type: FinancingType
+  bank?: string
+  amount?: number
+  validTo?: string
+}
+
 export interface Bid {
   id: string
   bidderId: string
   bidderName: string
   amount: number
-  time: string
-  desiredAccess: string // 'YYYY-MM-DD'
+  time: string // tidsstämpel när förfrågan skickades, t.ex. '10:04'
+  desiredAccess: string // 'YYYY-MM-DD', tom sträng om köparen är flexibel
+  kind: RequestKind
+  flexible: boolean
+  financing: Financing
+  conditions: string[] // t.ex. ['Finansieringsvillkor']
+  otherCondition: string
+  status: RequestStatus
 }
 
 export interface ContractConditions {

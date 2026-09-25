@@ -7,9 +7,9 @@ import { cn } from './ui'
 
 const QA: { q: string; keywords: string[]; a: string }[] = [
   {
-    q: 'Vad händer efter att jag accepterat ett bud?',
-    keywords: ['accept', 'efter', 'bud'],
-    a: 'När du accepterat ett bud är affären inte klar juridiskt – det är den först när både du och köparen har signerat överlåtelseavtalet. Nästa steg är att vi skapar avtalet tillsammans: köpare, pris, tillträdesdag och eventuella villkor. Sedan granskar ni båda avtalet och signerar.',
+    q: 'Vad händer när jag valt köpare?',
+    keywords: ['accept', 'efter', 'köpare', 'välj', 'förfrågan'],
+    a: 'När du valt att gå vidare med en köpare är affären inte bindande – det blir den först när både du och köparen har undertecknat köpekontraktet. Nästa steg är att vi skapar avtalet tillsammans: köpare, pris, tillträdesdag och eventuella villkor. Sedan granskar ni båda avtalet och signerar.',
   },
   {
     q: 'Vad är en handpenning?',
@@ -22,6 +22,11 @@ const QA: { q: string; keywords: string[]; a: string }[] = [
     a: 'När man köper en bostadsrätt måste köparen godkännas som medlem i bostadsrättsföreningen. Köparen skickar en medlemsansökan till föreningens styrelse, som brukar svara inom några veckor. Därför brukar avtalet innehålla ett villkor om att köpet gäller under förutsättning att köparen godkänns.',
   },
   {
+    q: 'Varför fast pris och inte budgivning?',
+    keywords: ['fast pris', 'budgivning', 'bud', 'erbjudande'],
+    a: 'Här sätter säljaren sitt pris från början. Som köpare vet du direkt vad bostaden kostar och kan meddela att du vill köpa till det priset – utan att chansa på bud. Vill du föreslå ett annat belopp kan du lämna ett erbjudande. Säljaren jämför och väljer själv, och affären blir bindande först när köpekontraktet är undertecknat.',
+  },
+  {
     q: 'Vad är ett tillträde?',
     keywords: ['tillträde', 'nycklar', 'flytt'],
     a: 'Tillträdesdagen är dagen då köparen betalar resten av köpeskillingen och får nycklarna. Från den dagen är det köparen som äger och ansvarar för bostaden. Vi guidar er genom en checklista så att inget glöms bort.',
@@ -29,7 +34,7 @@ const QA: { q: string; keywords: string[]; a: string }[] = [
   {
     q: 'Behöver jag en mäklare?',
     keywords: ['mäklare', 'arvode', 'själv'],
-    a: 'Nej, som privatperson får du sälja din bostad själv. Det som en mäklare normalt håller ihop – annons, visningar, budgivning, avtal och tillträde – guidar vi dig genom steg för steg. Vill du ha extra trygghet kan du välja Sälj själv Plus med juridisk kontroll av dokumenten.',
+    a: 'Nej, som privatperson får du sälja din bostad själv. Det som en mäklare normalt håller ihop – annons, visningar, köpförfrågningar, avtal och tillträde – guidar vi dig genom steg för steg. Vill du ha extra trygghet kan du välja Sälj själv Plus med juridisk kontroll av dokumenten.',
   },
 ]
 

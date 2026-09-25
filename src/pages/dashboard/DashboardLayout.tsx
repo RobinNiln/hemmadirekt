@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { ExternalLink, FileText, Gavel, Home, KeyRound, LayoutDashboard, PlayCircle, Scale, Sparkles, UserRound, Users } from 'lucide-react'
+import { ExternalLink, FileText, ListChecks, Home, KeyRound, LayoutDashboard, PlayCircle, Scale, Sparkles, UserRound, Users } from 'lucide-react'
 import { Button, Card, Container, StatusDot, cn } from '../../components/ui'
 import { Photo } from '../../components/Photo'
 import { useSale } from '../../state/SaleContext'
@@ -39,7 +39,7 @@ export default function DashboardLayout() {
       : [
           { to: '/min-forsaljning/kopare', label: 'Matchande köpare', icon: Sparkles },
           { to: '/min-forsaljning/intressenter', label: 'Intressenter', icon: Users },
-          { to: '/min-forsaljning/budgivning', label: 'Budgivning', icon: Gavel },
+          { to: '/min-forsaljning/forfragningar', label: 'Köpförfrågningar', icon: ListChecks },
         ]),
     { to: '/min-forsaljning/avtal', label: 'Avtal', icon: Scale },
     { to: '/min-forsaljning/dokument', label: 'Dokument', icon: FileText },
@@ -60,7 +60,7 @@ export default function DashboardLayout() {
                   <span className="inline-flex items-center gap-2 font-medium">
                     <StatusDot tone={status.tone} /> {status.label}
                   </span>
-                  <span className="text-ink-muted">Pris: {formatSEK(state.property.askingPrice)}</span>
+                  <span className="text-ink-muted">{state.listing.priceType}: {formatSEK(state.property.askingPrice)}</span>
                 </div>
               </div>
             </div>
@@ -87,7 +87,7 @@ export default function DashboardLayout() {
               >
                 <Icon className="h-4 w-4" />
                 {label}
-                {label === 'Budgivning' && state.bids.length > 0 && !state.acceptedBidId && (
+                {label === 'Köpförfrågningar' && state.bids.length > 0 && !state.acceptedBidId && (
                   <span className="rounded-full bg-petrol-700 px-1.5 text-[10px] text-white">{state.bids.length}</span>
                 )}
               </NavLink>

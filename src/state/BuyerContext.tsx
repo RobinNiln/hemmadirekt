@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { BuyerProfile } from '../lib/matching'
+import type { Financing, RequestKind, RequestStatus } from './types'
 
 // ---------------------------------------------------------------------------
 // Köparens sida: sökprofil, sparade/avfärdade bostäder, delat intresse och notiser.
@@ -17,6 +18,23 @@ export interface Dismissal {
   other: string
 }
 
+// En köpförfrågan eller ett erbjudande som köparen skickat.
+export interface BuyerRequest {
+  id: string // samma id som hos säljaren, så att statusen kan följas
+  listingId: string
+  street: string
+  kind: RequestKind
+  amount: number
+  askingPrice: number
+  desiredAccess: string
+  flexible: boolean
+  financing: Financing
+  conditions: string[]
+  otherCondition: string
+  time: string
+  status: RequestStatus
+}
+
 export interface BuyerState {
   name: string
   profile: BuyerProfile | null
@@ -25,6 +43,8 @@ export interface BuyerState {
   seen: string[]
   shared: string[] // bostäder där köparen delat sin profil med säljaren
   learned: Record<string, 'yes' | 'no'> // svar på "Vi har märkt något"
+  requests: BuyerRequest[]
+  waitlist: string[] // bostäder där köparen anmält fortsatt intresse
 }
 
 export const DEMO_PROFILE: BuyerProfile = {
@@ -52,7 +72,7 @@ export const DEMO_PROFILE: BuyerProfile = {
   status: 'active',
 }
 
-const EMPTY: BuyerState = { name: 'Anna', profile: null, saved: [], dismissed: [], seen: [], shared: [], learned: {} }
+const EMPTY: BuyerState = { name: 'Anna', profile: null, saved: [], dismissed: [], seen: [], shared: [], learned: {}, requests: [], waitlist: [] }
 
 function load(): BuyerState {
   try {
@@ -73,6 +93,9 @@ interface Ctx {
   markSeen: (id: string) => void
   share: (id: string) => void
   answerLearning: (key: string, answer: 'yes' | 'no') => void
+  addRequest: (r: BuyerRequest) => void
+  withdrawRequest: (id: string) => void
+  joinWaitlist: (listingId: string) => void
   reset: () => void
 }
 
@@ -100,6 +123,9 @@ export function BuyerProvider({ children }: { children: ReactNode }) {
     markSeen: (id) => upd((b) => (b.seen.includes(id) ? b : { ...b, seen: [...b.seen, id] })),
     share: (id) => upd((b) => (b.shared.includes(id) ? b : { ...b, shared: [...b.shared, id] })),
     answerLearning: (key, answer) => upd((b) => ({ ...b, learned: { ...b.learned, [key]: answer } })),
+    addRequest: (r) => upd((b) => ({ ...b, requests: [r, ...b.requests.filter((x) => x.listingId !== r.listingId || x.status === 'Tillbakadragen')] })),
+    withdrawRequest: (id) => upd((b) => ({ ...b, requests: b.requests.map((r) => (r.id === id ? { ...r, status: 'Tillbakadragen' } : r)) })),
+    joinWaitlist: (listingId) => upd((b) => (b.waitlist.includes(listingId) ? b : { ...b, waitlist: [...b.waitlist, listingId] })),
     reset: () => setBuyer(EMPTY),
   }
   return <BuyerContext.Provider value={value}>{children}</BuyerContext.Provider>

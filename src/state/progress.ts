@@ -18,8 +18,8 @@ export function saleProgress(s: SaleState): ChecklistItem[] {
           { label: 'Bostad skapad', done: true },
           { label: 'Annons publicerad', done: s.published },
           { label: 'Visning bokad', done: !!s.viewing?.published },
-          { label: 'Samla bud', done: accepted },
-          { label: 'Acceptera bud', done: accepted },
+          { label: 'Ta emot köpförfrågningar', done: accepted },
+          { label: 'Välj köpare', done: accepted },
           { label: 'Signera avtal', done: signed },
           { label: 'Tillträde', done: s.closing.completed },
         ]
@@ -31,12 +31,15 @@ export function isSigned(s: SaleState) {
   return s.contract.signedBySeller && s.contract.signedByBuyer
 }
 
-export type StatusInfo = { label: string; tone: 'green' | 'amber' | 'grey' }
+export type StatusTone = 'green' | 'amber' | 'blue' | 'violet' | 'black' | 'grey'
+export type StatusInfo = { label: string; tone: StatusTone }
 
+// Bostadens status: 🟢 Till salu · 🟠 Affär pågår · 🔵 Kontrakt förbereds · 🟣 Kontrakt klart · ⚫ Såld
 export function saleStatus(s: SaleState): StatusInfo {
-  if (s.closing.completed) return { label: 'Såld – affären är klar', tone: 'green' }
-  if (isSigned(s)) return { label: 'Avtal signerat', tone: 'green' }
-  if (s.acceptedBidId) return { label: 'Bud accepterat – avtal förbereds', tone: 'amber' }
-  if (s.published) return { label: 'Publicerad', tone: 'green' }
+  if (s.closing.completed) return { label: 'Såld', tone: 'black' }
+  if (isSigned(s)) return { label: 'Kontrakt klart', tone: 'violet' }
+  if (s.acceptedBidId && (s.contract.draftCreated || s.contract.step > 1)) return { label: 'Kontrakt förbereds', tone: 'blue' }
+  if (s.acceptedBidId) return { label: 'Affär pågår', tone: 'amber' }
+  if (s.published || s.mode === 'direct') return { label: 'Till salu', tone: 'green' }
   return { label: 'Utkast – ej publicerad', tone: 'grey' }
 }

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight, BadgeCheck, Gavel, PlayCircle } from 'lucide-react'
+import { ArrowRight, BadgeCheck, Check, Clock, PlayCircle, Tag, Zap } from 'lucide-react'
 import { Button, Container, Eyebrow } from '../components/ui'
 import { Photo } from '../components/Photo'
 import { TrustRow } from '../components/Trust'
@@ -27,7 +27,7 @@ export default function Home() {
               Sälj din bostad själv. <span className="text-petrol-700">Vi hjälper dig med resten.</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-muted sm:text-xl">
-              Från annons och visning till budgivning, avtal och tillträde. Ett enklare sätt att sälja bostad – utan traditionellt mäklararvode.
+              Från annons och visning till köpförfrågan, avtal och tillträde. Ett enklare sätt att sälja bostad – utan traditionellt mäklararvode.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button to="/salj/start" size="lg">
@@ -50,10 +50,10 @@ export default function Home() {
             {/* Flytande kort som visar produkten */}
             <div className="absolute -left-4 bottom-10 w-64 rounded-2xl bg-white p-4 shadow-lift animate-rise sm:-left-10">
               <div className="flex items-center gap-2 text-xs font-semibold text-petrol-700">
-                <Gavel className="h-4 w-4" /> Nytt bud
+                <Tag className="h-4 w-4" /> Ny köpförfrågan
               </div>
-              <p className="mt-1 text-2xl font-bold tracking-tight">4 620 000 kr</p>
-              <p className="mt-0.5 text-sm text-ink-muted">Anna A. · 12:48</p>
+              <p className="mt-1 text-2xl font-bold tracking-tight">4 895 000 kr</p>
+              <p className="mt-0.5 text-sm text-ink-muted">Anna A. accepterar ditt pris · 10:04</p>
             </div>
             <div className="absolute -right-2 top-8 flex items-center gap-2 rounded-full bg-white py-2 pl-2 pr-4 text-sm font-semibold shadow-lift sm:-right-6">
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-mint-200 text-petrol-800">
@@ -77,6 +77,37 @@ export default function Home() {
           </Button>
         </div>
         <FourSteps />
+      </Section>
+
+      {/* FAST PRIS */}
+      <Section>
+        <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.1fr]">
+          <div>
+            <Eyebrow>Fast pris</Eyebrow>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Priset du ser är priset säljaren vill ha</h2>
+            <p className="mt-4 text-lg leading-relaxed text-ink-muted">
+              På vår plattform sätter säljaren sitt pris från början. Som köpare vet du direkt vad bostaden kostar och kan meddela att du vill köpa till det priset.
+            </p>
+            <Button to="/kopa" size="lg" className="mt-8">
+              Se bostäder <ArrowRight className="h-5 w-5" />
+            </Button>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {[
+              { icon: Check, title: 'Tydligare', text: 'Du vet vad säljaren vill ha.' },
+              { icon: Clock, title: 'Enklare', text: 'Ingen långdragen budgivning krävs.' },
+              { icon: Zap, title: 'Snabbare', text: 'När köpare och säljare är överens kan affären gå direkt vidare mot kontrakt.' },
+            ].map(({ icon: Icon, title, text }) => (
+              <div key={title} className="rounded-2xl border border-sand-300/70 bg-white p-5 shadow-card">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-mint-100 text-petrol-700">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <p className="mt-4 text-lg font-bold">{title}</p>
+                <p className="mt-1 text-sm leading-relaxed text-ink-muted">{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </Section>
 
       {/* FUNKTIONER */}
@@ -139,7 +170,7 @@ export default function Home() {
         <div className="flex flex-col items-start justify-between gap-6 rounded-3xl border border-sand-300 bg-white p-8 shadow-card sm:flex-row sm:items-center sm:p-10">
           <div>
             <h2 className="text-2xl font-bold tracking-tight">Vill du se hur det ser ut inifrån?</h2>
-            <p className="mt-2 text-ink-muted">Hoppa in i en pågående försäljning av Ringvägen 128 – med visning, intressenter, bud och statistik.</p>
+            <p className="mt-2 text-ink-muted">Hoppa in i en pågående försäljning av Ringvägen 128 – med visning, intressenter, köpförfrågningar och statistik.</p>
           </div>
           <Button size="lg" onClick={startDemo} className="w-full sm:w-auto">
             <PlayCircle className="h-5 w-5" /> Testa en pågående försäljning
